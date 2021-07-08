@@ -1,5 +1,5 @@
 output "table_arn" {
-  value = aws_dynamodb_table.entry_table.arn
+  value = aws_dynamodb_table.sensed_time_table.arn
 }
 
 output "policy" {
