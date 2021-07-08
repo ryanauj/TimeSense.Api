@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Entries.Models\Entries.Models.csproj" />
-      <ProjectReference Include="..\Entries.Serialization\Entries.Serialization.csproj" />
+      <ProjectReference Include="..\TimeSense.Models\TimeSense.Models.csproj" />
+      <ProjectReference Include="..\TimeSense.Serialization\TimeSense.Serialization.csproj" />
     </ItemGroup>
 
     <ItemGroup>

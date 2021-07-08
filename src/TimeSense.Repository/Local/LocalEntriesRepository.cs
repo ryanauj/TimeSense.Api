@@ -30,7 +30,14 @@ namespace TimeSense.Repository.Local
                 throw new ArgumentNullException(nameof(input));
             }
 
-            var sensedTime = new SensedTime(userId, Guid.NewGuid().ToString(), input);
+            var sensedTime = new SensedTime
+            {
+                UserId = userId,
+                Id = Guid.NewGuid().ToString(),
+                StartTime = input.StartTime,
+                StopTime = input.StopTime,
+                TargetTime = input.TargetTime
+            };
             _sensedTimes.Add(sensedTime);
 
             return Task.FromResult(sensedTime.Id);
