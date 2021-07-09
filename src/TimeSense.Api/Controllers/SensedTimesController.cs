@@ -15,15 +15,15 @@ using Microsoft.Extensions.Logging;
 namespace TimeSense.Api.Controllers
 {
     [Route("api/[controller]")]
-    public class TimeSenseController : ControllerBase
+    public class SensedTimesController : ControllerBase
     {
         private readonly IRepository<string, string, SensedTimeInput, SensedTime> _repository;
-        private readonly ILogger<TimeSenseController> _logger;
+        private readonly ILogger<SensedTimesController> _logger;
         private const string MockCognitoIdentityId = "MOCK_COGNITO_IDENTITY_ID";
 
-        public TimeSenseController(
+        public SensedTimesController(
             IRepository<string, string, SensedTimeInput, SensedTime> repository,
-            ILogger<TimeSenseController> logger)
+            ILogger<SensedTimesController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
