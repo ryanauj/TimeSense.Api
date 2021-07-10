@@ -14,6 +14,9 @@ namespace TimeSense.Repository.Abstractions
     public abstract class BaseRepository<TItemInput, TItem> : IRepository<string, string, TItemInput, TItem>
         where TItem : class, IEntity<string, string>
     {
+        private const string UserIdKey = "UserId";
+        private const string UserIdValueKey = ":userId";
+        private const string IdKey = "Id";
         private readonly string _tableName;
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly ISerializer _serializer;
@@ -39,8 +42,8 @@ namespace TimeSense.Repository.Abstractions
                 TableName = _tableName,
                 Key = new Dictionary<string, AttributeValue>
                 {
-                    [nameof(userId)] = new AttributeValue {S = userId.ToString()},
-                    [nameof(id)] = new AttributeValue {S = id.ToString()}
+                    [UserIdKey] = new AttributeValue {S = userId},
+                    [IdKey] = new AttributeValue {S = id}
                 }
             };
             var response = await _dynamoDb.GetItemAsync(request);
@@ -89,8 +92,8 @@ namespace TimeSense.Repository.Abstractions
                 TableName = _tableName,
                 Key = new Dictionary<string, AttributeValue>
                 {
-                    [nameof(userId)] = new AttributeValue {S = userId.ToString()},
-                    [nameof(id)] = new AttributeValue {S = id.ToString()}
+                    [UserIdKey] = new AttributeValue {S = userId},
+                    [IdKey] = new AttributeValue {S = id}
                 }
             };
             
@@ -102,10 +105,10 @@ namespace TimeSense.Repository.Abstractions
             var request = new QueryRequest
             {
                 TableName = _tableName,
-                KeyConditionExpression = $"{nameof(userId )} = :userId",
+                KeyConditionExpression = $"{UserIdKey} = {UserIdValueKey}",
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
-                    [nameof(userId)] = new AttributeValue {S = userId.ToString()},
+                    [UserIdValueKey] = new AttributeValue {S = userId},
                 }
             };
             var response = await _dynamoDb.QueryAsync(request);
