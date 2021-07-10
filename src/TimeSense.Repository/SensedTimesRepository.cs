@@ -10,7 +10,7 @@ namespace TimeSense.Repository
     public class SensedTimesRepository : BaseRepository<SensedTimeInput, SensedTime>
     {
         public SensedTimesRepository(IHostingEnvironment env, IAmazonDynamoDB dynamoDb, ISerializer serializer) :
-            base($"sensedTime-table-{env.EnvironmentName}", dynamoDb, serializer)
+            base($"sensed-time-table-{env.EnvironmentName}", dynamoDb, serializer)
         {
         }
 
