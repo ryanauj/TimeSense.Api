@@ -78,16 +78,9 @@ namespace TimeSense.Api.Controllers
             [FromBody] SensedTimeInput sensedTimeInput
         )
         {
-            var sensedTime = new SensedTime
-            {
-                UserId = GetUserId(HttpContext),
-                Id = id,
-                StartTime = sensedTimeInput.StartTime,
-                StopTime = sensedTimeInput.StopTime,
-                TargetTime = sensedTimeInput.TargetTime
-            };
-            await _repository.Update(sensedTime);
-            var response = new IdentifierResponse<string> {Id = sensedTime.Id};
+            var userId = GetUserId(HttpContext);
+            await _repository.Update(userId, id, sensedTimeInput);
+            var response = new IdentifierResponse<string> {Id = id};
 
             return Ok(response);
         }

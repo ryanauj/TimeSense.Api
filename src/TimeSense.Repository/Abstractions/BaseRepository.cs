@@ -71,9 +71,10 @@ namespace TimeSense.Repository.Abstractions
             return id;
         }
 
-        public Task Update(TItem input)
+        public Task Update(string userId, string id, TItemInput input)
         {
-            var serializedItem = _serializer.Serialize(input);
+            var item = Build(userId, id, input);
+            var serializedItem = _serializer.Serialize(item);
             var document = Document.FromJson(serializedItem);
             
             var request = new PutItemRequest

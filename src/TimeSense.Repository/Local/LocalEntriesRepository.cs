@@ -43,20 +43,29 @@ namespace TimeSense.Repository.Local
             return Task.FromResult(sensedTime.Id);
         }
 
-        public Task Update(SensedTime input)
+        public Task Update(string userId, string id, SensedTimeInput input)
         {
             if (input == null)
             {
                 throw new ArgumentNullException(nameof(input));
             }
 
-            if (_sensedTimes == null || _sensedTimes.All(sensedTime => sensedTime.Id != input.Id))
+            if (_sensedTimes == null || _sensedTimes.All(sensedTime => sensedTime.Id != id))
             {
-                throw new RepositoryException($"No sensedTime exists with id '{input.Id}'");
+                throw new RepositoryException($"No sensedTime exists with id '{id}'");
             }
 
-            RemoveSensedTime(input.UserId, input.Id);
-            _sensedTimes.Add(input);
+            var sensedTime = new SensedTime
+            {
+                UserId = userId,
+                Id = id,
+                StartTime = input.StartTime,
+                StopTime = input.StopTime,
+                TargetTime = input.TargetTime
+            };
+
+            RemoveSensedTime(userId, id);
+            _sensedTimes.Add(sensedTime;
 
             return Task.CompletedTask;
         }

@@ -7,7 +7,7 @@ namespace TimeSense.Repository.Interfaces
     {
         Task<TItem> Get(TUserId userId, TId id);
         Task<TId> Create(TUserId userId, TItemInput input);
-        Task Update(TItem input);
+        Task Update(TUserId userId, TId id, TItemInput input);
         Task Delete(TUserId userId, TId id);
         Task<IEnumerable<TItem>> List(TUserId userId);
     }
