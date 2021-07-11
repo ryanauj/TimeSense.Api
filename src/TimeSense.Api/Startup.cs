@@ -29,7 +29,9 @@ namespace TimeSense.Api
             services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonDynamoDB>();
             services.AddHealthChecks();
-            services.AddControllers().AddJsonOptions(options =>
+            services.AddControllers()
+                .AddNewtonsoftJson()
+                .AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddSwaggerGen();
             services.AddSerialization();
