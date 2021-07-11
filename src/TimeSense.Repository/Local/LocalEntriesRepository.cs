@@ -65,7 +65,7 @@ namespace TimeSense.Repository.Local
             };
 
             RemoveSensedTime(userId, id);
-            _sensedTimes.Add(sensedTime;
+            _sensedTimes.Add(sensedTime);
 
             return Task.CompletedTask;
         }
