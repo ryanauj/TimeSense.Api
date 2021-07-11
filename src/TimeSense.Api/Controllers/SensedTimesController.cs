@@ -62,20 +62,30 @@ namespace TimeSense.Api.Controllers
 
         // POST api/sensedTimes
         [HttpPost]
-        public async Task<ActionResult<IdentifierResponse<string>>> Post([FromBody] SensedTimeInput sensedTime)
+        public async Task<ActionResult<IdentifierResponse<string>>> Post([FromBody] SensedTimeInput sensedTimeInput)
         {
             var userId = GetUserId(HttpContext);
-            var id = await _repository.Create(userId, sensedTime);
+            var id = await _repository.Create(userId, sensedTimeInput);
             var response = new IdentifierResponse<string> {Id = id};
             
             return Ok(response);
         }
 
         // PUT api/sensedTimes
-        [HttpPut]
-        public async Task<ActionResult<IdentifierResponse<string>>> Put([FromBody] SensedTime sensedTime)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<IdentifierResponse<string>>> Put(
+            string id,
+            [FromBody] SensedTimeInput sensedTimeInput
+        )
         {
-            sensedTime.UserId = GetUserId(HttpContext);
+            var sensedTime = new SensedTime
+            {
+                UserId = GetUserId(HttpContext),
+                Id = id,
+                StartTime = sensedTimeInput.StartTime,
+                StopTime = sensedTimeInput.StopTime,
+                TargetTime = sensedTimeInput.TargetTime
+            };
             await _repository.Update(sensedTime);
             var response = new IdentifierResponse<string> {Id = sensedTime.Id};
 
