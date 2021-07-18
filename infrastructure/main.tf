@@ -6,7 +6,7 @@ provider "aws" {
 provider "archive" {}
 
 module "cognito_pools" {
-  source = "git::https://github.com/ryanauj/cognito-pools.git?ref=0.0.1"
+  source = "git::https://github.com/ryanauj/cognito-pools.git?ref=0.0.2"
   name = "${var.app_name}-${var.environment}"
 }
 
