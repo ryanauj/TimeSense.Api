@@ -14,6 +14,14 @@ output "invoke_url" {
   value = module.lambda_api.invoke_url
 }
 
+output "root_resource_id" {
+  value = module.lambda_api.root_resource_id
+}
+
+output "proxy_resource_id" {
+  value = module.lambda_api.proxy_resource_id
+}
+
 output "sensed_time_table_table_arn" {
   value = module.sensed_time_dynamodb_table.table_arn
 }
