@@ -29,3 +29,19 @@ module "sensed_time_dynamodb_table" {
   environment = var.environment
   role = module.lambda_api.lambda_iam_role
 }
+
+module "root_resource_cors" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+
+  api_id = module.lambda_api.rest_api_id
+  api_resource_id = module.lambda_api.root_resource_id
+}
+
+module "proxy_resource_cors" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+
+  api_id = module.lambda_api.rest_api_id
+  api_resource_id = module.lambda_api.proxy_resource_id
+}
