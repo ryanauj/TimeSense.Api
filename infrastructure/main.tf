@@ -11,7 +11,7 @@ module "cognito_pools" {
 }
 
 module "lambda_api" {
-  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.18"
+  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.28"
   name = "${var.app_name}-${var.environment}"
   environment = var.environment
   lambda_filename = var.lambda_filename
@@ -28,20 +28,4 @@ module "sensed_time_dynamodb_table" {
   source = "./modules/sensed_time_dynamodb_table"
   environment = var.environment
   role = module.lambda_api.lambda_iam_role
-}
-
-module "root_resource_cors" {
-  source = "squidfunk/api-gateway-enable-cors/aws"
-  version = "0.3.3"
-
-  api_id = module.lambda_api.rest_api_id
-  api_resource_id = module.lambda_api.root_resource_id
-}
-
-module "proxy_resource_cors" {
-  source = "squidfunk/api-gateway-enable-cors/aws"
-  version = "0.3.3"
-
-  api_id = module.lambda_api.rest_api_id
-  api_resource_id = module.lambda_api.proxy_resource_id
 }
