@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.AspNetCoreServer;
 using Amazon.Lambda.Core;
 using TimeSense.Api.Models;
 using TimeSense.Models;
-using TimeSense.Repository;
 using TimeSense.Repository.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 
 namespace TimeSense.Api.Controllers
 {
@@ -32,6 +34,7 @@ namespace TimeSense.Api.Controllers
 
         private static string GetUserId(HttpContext httpContext)
         {
+            LogHeaders(httpContext.Request.Headers, "Context Request Headers");
             if (httpContext.Request.Headers.ContainsKey(MockCognitoIdentityId))
             {
                 var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
@@ -40,6 +43,7 @@ namespace TimeSense.Api.Controllers
             }
             
             var lambdaRequest = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_REQUEST_OBJECT] as APIGatewayProxyRequest;
+            LogHeaders(lambdaRequest.Headers, "Lambda Request Headers");
             if (lambdaRequest.Headers.ContainsKey(MockCognitoIdentityId))
             {
                 var lambdaRequestMockCognitoId = lambdaRequest.Headers[MockCognitoIdentityId];
@@ -49,15 +53,60 @@ namespace TimeSense.Api.Controllers
             
             var lambdaContext = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_CONTEXT] as ILambdaContext;
             var cognitoId = lambdaContext.Identity.IdentityId;
+            LogLambdaContext(lambdaContext);
             Console.WriteLine($"Using identity cognito id: '{cognitoId}'");
             return lambdaContext.Identity.IdentityId;
         }
+
+        private static void LogHeaders(IDictionary<string, string> headers, string message=null)
+        {
+            LogHeaders(
+                headers.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => new StringValues(kvp.Value)));
+        }
+
+        private static void LogHeaders(IDictionary<string, StringValues> headers, string message=null)
+        {
+            var builder = new StringBuilder(Environment.NewLine);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                builder.AppendLine(message);
+            }
+            
+            foreach (var header in headers)
+            {
+                builder.AppendLine($"{header.Key}:{header.Value}");
+            }
+            Console.WriteLine(builder.ToString());
+        }
+
+        private static void LogLambdaContext(ILambdaContext lambdaContext, string message=null)
+        {
+            var builder = new StringBuilder(Environment.NewLine);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                builder.AppendLine(message);
+            }
+
+            builder.AppendLine(JsonConvert.SerializeObject(lambdaContext));
+            
+            Console.WriteLine(builder.ToString());
+        }
+
+        private BadRequestObjectResult BadRequestErrorResponse(string message) => 
+            BadRequest(new ErrorResponse("No user id passed in."));
 
         // GET api/sensedTimes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SensedTime>>> Get()
         {
             var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
             var sensedTimes = await _repository.List(userId);
 
             return Ok(sensedTimes);
@@ -68,6 +117,11 @@ namespace TimeSense.Api.Controllers
         public async Task<ActionResult<SensedTime>> Get(string id)
         {
             var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
             var sensedTime = await _repository.Get(userId, id);
             
             return Ok(sensedTime);
@@ -78,6 +132,11 @@ namespace TimeSense.Api.Controllers
         public async Task<ActionResult<IdentifierResponse<string>>> Post([FromBody] SensedTimeInput sensedTimeInput)
         {
             var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
             var id = await _repository.Create(userId, sensedTimeInput);
             var response = new IdentifierResponse<string> {Id = id};
             
@@ -92,6 +151,11 @@ namespace TimeSense.Api.Controllers
         )
         {
             var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
             await _repository.Update(userId, id, sensedTimeInput);
             var response = new IdentifierResponse<string> {Id = id};
 
@@ -103,6 +167,11 @@ namespace TimeSense.Api.Controllers
         public async Task<ActionResult> Delete(string id)
         {
             var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
             await _repository.Delete(userId, id);
 
             return Ok();

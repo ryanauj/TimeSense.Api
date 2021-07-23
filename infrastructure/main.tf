@@ -11,7 +11,7 @@ module "cognito_pools" {
 }
 
 module "lambda_api" {
-  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.28"
+  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.30"
   name = "${var.app_name}-${var.environment}"
   environment = var.environment
   lambda_filename = var.lambda_filename
