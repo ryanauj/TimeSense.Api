@@ -1,10 +1,6 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2;
-using TimeSense.Models;
-using TimeSense.Repository;
 using TimeSense.Repository.Configuration;
-using TimeSense.Serialization;
 using TimeSense.Serialization.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

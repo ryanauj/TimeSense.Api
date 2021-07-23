@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.AspNetCoreServer;
 using Amazon.Lambda.Core;
 using TimeSense.Api.Models;
@@ -33,10 +34,22 @@ namespace TimeSense.Api.Controllers
         {
             if (httpContext.Request.Headers.ContainsKey(MockCognitoIdentityId))
             {
-                return httpContext.Request.Headers[MockCognitoIdentityId];
+                var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
+                Console.WriteLine($"Using headers mock cognito id: '{mockCognitoId}'");
+                return mockCognitoId;
+            }
+            
+            var lambdaRequest = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_REQUEST_OBJECT] as APIGatewayProxyRequest;
+            if (lambdaRequest.Headers.ContainsKey(MockCognitoIdentityId))
+            {
+                var lambdaRequestMockCognitoId = lambdaRequest.Headers[MockCognitoIdentityId];
+                Console.WriteLine($"Using lambda request mock cognito id: '{lambdaRequestMockCognitoId}'");
+                return lambdaRequestMockCognitoId;
             }
             
             var lambdaContext = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_CONTEXT] as ILambdaContext;
+            var cognitoId = lambdaContext.Identity.IdentityId;
+            Console.WriteLine($"Using identity cognito id: '{cognitoId}'");
             return lambdaContext.Identity.IdentityId;
         }
 
