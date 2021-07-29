@@ -11,13 +11,17 @@ module "cognito_pools" {
 }
 
 module "lambda_api" {
-  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.30"
+  source = "git::https://github.com/ryanauj/lambda-api.git?ref=0.0.33"
   name = "${var.app_name}-${var.environment}"
   environment = var.environment
   lambda_filename = var.lambda_filename
   lambda_handler = var.lambda_handler
   lambda_runtime = var.lambda_runtime
   public_routes = var.public_routes
+  
+  request_parameters = {
+    "integration.request.header.X-Cognito-Id" = "$context.identity.cognitoIdentityId"
+  }
   
   variables = {
     ASPNETCORE_ENVIRONMENT = var.environment
