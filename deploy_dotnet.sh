@@ -28,5 +28,8 @@ popd
 #Deploy terraform
 echo "Deploying service."
 pushd $INFRASTRUCTURE_DIR
-terraform apply -auto-approve
+terraform apply -auto-approve \
+  -var='lambda_filename="../TimeSense.Api.zip"' \
+  -var='lambda_handler="TimeSense.Api::TimeSense.Api.LambdaEntryPoint::FunctionHandlerAsync"'
+
 popd

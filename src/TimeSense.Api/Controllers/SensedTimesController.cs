@@ -63,7 +63,8 @@ namespace TimeSense.Api.Controllers
             LogHeaders(
                 headers.ToDictionary(
                     kvp => kvp.Key,
-                    kvp => new StringValues(kvp.Value)));
+                    kvp => new StringValues(kvp.Value)),
+                message);
         }
 
         private static void LogHeaders(IDictionary<string, StringValues> headers, string message=null)
