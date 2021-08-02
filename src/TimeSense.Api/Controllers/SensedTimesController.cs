@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
@@ -34,16 +35,16 @@ namespace TimeSense.Api.Controllers
 
         private static string GetUserId(HttpContext httpContext)
         {
-            LogHeaders(httpContext.Request.Headers, "Context Request Headers");
-            if (httpContext.Request.Headers.ContainsKey(MockCognitoIdentityId))
+            var lambdaRequest = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_REQUEST_OBJECT] as APIGatewayProxyRequest;
+            
+            Log(lambdaRequest, "Lambda Request");
+            var lambdaRequestCognitoId = lambdaRequest?.RequestContext?.Identity?.CognitoIdentityId;
+            if (string.IsNullOrWhiteSpace(lambdaRequestCognitoId))
             {
-                var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
-                Console.WriteLine($"Using headers mock cognito id: '{mockCognitoId}'");
-                return mockCognitoId;
+                Console.WriteLine($"Using lambda request cognito id: '{lambdaRequestCognitoId}'");
+                return lambdaRequestCognitoId;
             }
             
-            var lambdaRequest = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_REQUEST_OBJECT] as APIGatewayProxyRequest;
-            LogHeaders(lambdaRequest.Headers, "Lambda Request Headers");
             if (lambdaRequest.Headers.ContainsKey(MockCognitoIdentityId))
             {
                 var lambdaRequestMockCognitoId = lambdaRequest.Headers[MockCognitoIdentityId];
@@ -51,34 +52,26 @@ namespace TimeSense.Api.Controllers
                 return lambdaRequestMockCognitoId;
             }
             
-            var lambdaContext = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_CONTEXT] as ILambdaContext;
-            var cognitoId = lambdaContext.Identity.IdentityId;
-            LogLambdaContext(lambdaContext);
-            Console.WriteLine($"Using identity cognito id: '{cognitoId}'");
-            return lambdaContext.Identity.IdentityId;
+            Log(httpContext.Request, "Context Request Headers");
+            if (httpContext.Request.Headers.ContainsKey(MockCognitoIdentityId))
+            {
+                var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
+                Console.WriteLine($"Using headers mock cognito id: '{mockCognitoId}'");
+                return mockCognitoId;
+            }
+
+            throw new AuthenticationException("UserId not found in request!");
         }
 
-        private static void LogHeaders(IDictionary<string, string> headers, string message=null)
-        {
-            LogHeaders(
-                headers.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => new StringValues(kvp.Value)),
-                message);
-        }
-
-        private static void LogHeaders(IDictionary<string, StringValues> headers, string message=null)
+        private static void Log<T>(T objectToLog, string message=null)
         {
             var builder = new StringBuilder(Environment.NewLine);
             if (!string.IsNullOrWhiteSpace(message))
             {
                 builder.AppendLine(message);
             }
-            
-            foreach (var header in headers)
-            {
-                builder.AppendLine($"{header.Key}:{header.Value}");
-            }
+
+            builder.AppendLine(JsonConvert.SerializeObject(objectToLog));
             Console.WriteLine(builder.ToString());
         }
 
