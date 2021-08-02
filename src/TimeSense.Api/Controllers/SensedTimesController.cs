@@ -39,21 +39,21 @@ namespace TimeSense.Api.Controllers
             
             Log(lambdaRequest, "Lambda Request");
             var lambdaRequestCognitoId = lambdaRequest?.RequestContext?.Identity?.CognitoIdentityId;
-            if (string.IsNullOrWhiteSpace(lambdaRequestCognitoId))
+            if (!string.IsNullOrWhiteSpace(lambdaRequestCognitoId))
             {
                 Console.WriteLine($"Using lambda request cognito id: '{lambdaRequestCognitoId}'");
                 return lambdaRequestCognitoId;
             }
             
-            if (lambdaRequest.Headers.ContainsKey(MockCognitoIdentityId))
+            if (lambdaRequest?.Headers?.ContainsKey(MockCognitoIdentityId) ?? false)
             {
                 var lambdaRequestMockCognitoId = lambdaRequest.Headers[MockCognitoIdentityId];
                 Console.WriteLine($"Using lambda request mock cognito id: '{lambdaRequestMockCognitoId}'");
                 return lambdaRequestMockCognitoId;
             }
             
-            Log(httpContext.Request, "Context Request Headers");
-            if (httpContext.Request.Headers.ContainsKey(MockCognitoIdentityId))
+            Log(httpContext.Request, "Context Request");
+            if (httpContext?.Request?.Headers?.ContainsKey(MockCognitoIdentityId) ?? false)
             {
                 var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
                 Console.WriteLine($"Using headers mock cognito id: '{mockCognitoId}'");
