@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Authentication;
-using System.Text;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.AspNetCoreServer;
-using Amazon.Lambda.Core;
 using TimeSense.Api.Models;
 using TimeSense.Models;
 using TimeSense.Repository.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
 
 namespace TimeSense.Api.Controllers
 {
@@ -37,7 +32,6 @@ namespace TimeSense.Api.Controllers
         {
             var lambdaRequest = httpContext.Items[AbstractAspNetCoreFunction.LAMBDA_REQUEST_OBJECT] as APIGatewayProxyRequest;
             
-            Log(lambdaRequest, "Lambda Request");
             var lambdaRequestCognitoId = lambdaRequest?.RequestContext?.Identity?.CognitoIdentityId;
             if (!string.IsNullOrWhiteSpace(lambdaRequestCognitoId))
             {
@@ -52,7 +46,6 @@ namespace TimeSense.Api.Controllers
                 return lambdaRequestMockCognitoId;
             }
             
-            Log(httpContext.Request, "Context Request");
             if (httpContext?.Request?.Headers?.ContainsKey(MockCognitoIdentityId) ?? false)
             {
                 var mockCognitoId = httpContext.Request.Headers[MockCognitoIdentityId];
@@ -61,31 +54,6 @@ namespace TimeSense.Api.Controllers
             }
 
             throw new AuthenticationException("UserId not found in request!");
-        }
-
-        private static void Log<T>(T objectToLog, string message=null)
-        {
-            var builder = new StringBuilder(Environment.NewLine);
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                builder.AppendLine(message);
-            }
-
-            builder.AppendLine(JsonConvert.SerializeObject(objectToLog));
-            Console.WriteLine(builder.ToString());
-        }
-
-        private static void LogLambdaContext(ILambdaContext lambdaContext, string message=null)
-        {
-            var builder = new StringBuilder(Environment.NewLine);
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                builder.AppendLine(message);
-            }
-
-            builder.AppendLine(JsonConvert.SerializeObject(lambdaContext));
-            
-            Console.WriteLine(builder.ToString());
         }
 
         private BadRequestObjectResult BadRequestErrorResponse(string message) => 
