@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace TimeSense.Repository.Interfaces
 {
-    public interface IRepository<in TUserId, TId, in TItemInput, TItem>
+    public interface IRepository<in TUserId, TId, in TEntityInput, TEntity>
     {
-        Task<TItem> Get(TUserId userId, TId id);
-        Task<TId> Create(TUserId userId, TItemInput input);
-        Task Update(TUserId userId, TId id, TItemInput input);
+        Task<TEntity> Get(TUserId userId, TId id);
+        Task<TId> Create(TUserId userId, TEntityInput input);
+        Task Update(TUserId userId, TId id, TEntityInput input);
         Task Delete(TUserId userId, TId id);
-        Task<IEnumerable<TItem>> List(TUserId userId);
+        Task<IEnumerable<TEntity>> List(TUserId userId);
     }
 }

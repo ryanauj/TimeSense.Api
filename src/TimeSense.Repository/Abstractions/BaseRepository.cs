@@ -11,8 +11,8 @@ using TimeSense.Serialization;
 
 namespace TimeSense.Repository.Abstractions
 {
-    public abstract class BaseRepository<TItemInput, TItem> : IRepository<string, string, TItemInput, TItem>
-        where TItem : class, IEntity<string, string>
+    public abstract class BaseRepository<TEntityInput, TEntity> : IRepository<string, string, TEntityInput, TEntity>
+        where TEntity : class, IEntity<string, string>
     {
         private const string UserIdKey = "UserId";
         private const string UserIdValueKey = ":userId";
@@ -21,7 +21,7 @@ namespace TimeSense.Repository.Abstractions
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly ISerializer _serializer;
 
-        protected abstract TItem Build(string userId, string id, TItemInput input);
+        protected abstract TEntity Build(IEntity<string, string> commonData, TEntityInput input);
 
         protected BaseRepository(
             string tableName,
@@ -35,7 +35,7 @@ namespace TimeSense.Repository.Abstractions
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        public async Task<TItem> Get(string userId, string id)
+        public async Task<TEntity> Get(string userId, string id)
         {
             var request = new GetItemRequest
             {
@@ -50,13 +50,20 @@ namespace TimeSense.Repository.Abstractions
             var document = Document.FromAttributeMap(response.Item);
             var serializedItem = document.ToJson();
             
-            return _serializer.Deserialize<TItem>(serializedItem);
+            return _serializer.Deserialize<TEntity>(serializedItem);
         }
 
-        public async Task<string> Create(string userId, TItemInput input)
+        public async Task<string> Create(string userId, TEntityInput input)
         {
             var id = Guid.NewGuid().ToString();
-            var item = Build(userId, id, input);
+            var baseEntity = new BaseEntity<string, string>
+            {
+                Id = id,
+                UserId = userId,
+                CreatedAt = DateTimeOffset.Now,
+                UpdatedAt = DateTimeOffset.Now
+            };
+            var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);
             var document = Document.FromJson(serializedItem);
             
@@ -71,9 +78,11 @@ namespace TimeSense.Repository.Abstractions
             return id;
         }
 
-        public Task Update(string userId, string id, TItemInput input)
+        public async Task Update(string userId, string id, TEntityInput input)
         {
-            var item = Build(userId, id, input);
+            var baseEntity = await Get(userId, id);
+            baseEntity.UpdatedAt = DateTimeOffset.Now;
+            var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);
             var document = Document.FromJson(serializedItem);
             
@@ -83,7 +92,7 @@ namespace TimeSense.Repository.Abstractions
                 Item = document.ToAttributeMap()
             };
             
-            return _dynamoDb.PutItemAsync(request);
+            await _dynamoDb.PutItemAsync(request);
         }
 
         public Task Delete(string userId, string id)
@@ -101,7 +110,7 @@ namespace TimeSense.Repository.Abstractions
             return _dynamoDb.DeleteItemAsync(request);
         }
 
-        public async Task<IEnumerable<TItem>> List(string userId)
+        public async Task<IEnumerable<TEntity>> List(string userId)
         {
             var request = new QueryRequest
             {
@@ -114,7 +123,7 @@ namespace TimeSense.Repository.Abstractions
             };
             var response = await _dynamoDb.QueryAsync(request);
             var items = response.Items.Select(i =>
-                _serializer.Deserialize<TItem>(Document.FromAttributeMap(i).ToJson()));
+                _serializer.Deserialize<TEntity>(Document.FromAttributeMap(i).ToJson()));
             
             return items;
         }

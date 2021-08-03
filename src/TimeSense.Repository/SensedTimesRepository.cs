@@ -1,4 +1,3 @@
-using System;
 using Amazon.DynamoDBv2;
 using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
@@ -14,14 +13,18 @@ namespace TimeSense.Repository
         {
         }
 
-        protected override SensedTime Build(string userId, string id, SensedTimeInput input) =>
+        protected override SensedTime Build(
+            IEntity<string, string> baseEntity,
+            SensedTimeInput input
+        ) =>
             new SensedTime
             {
-                UserId = userId,
-                Id = id,
-                StartTime = input.StartTime,
-                StopTime = input.StopTime,
-                TargetTime = input.TargetTime
+                UserId = baseEntity.UserId,
+                Id = baseEntity.Id,
+                TargetTimeInMilliseconds = input.TargetTimeInMilliseconds,
+                ActualTimeInMilliseconds = input.ActualTimeInMilliseconds,
+                CreatedAt = baseEntity.CreatedAt,
+                UpdatedAt = baseEntity.UpdatedAt
             };
     }
 }

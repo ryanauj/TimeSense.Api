@@ -6,13 +6,8 @@ namespace TimeSense.Models
 {
     public class SensedTimeInput
     {
-        [JsonConverter(typeof(Newtonsoft.Json.Converters.UnixDateTimeConverter))]
-        public DateTimeOffset TargetTime { get; set; }
+        public long TargetTimeInMilliseconds { get; set; }
 
-        [JsonConverter(typeof(UnixDateTimeConverter))]
-        public DateTimeOffset StartTime { get; set; }
-
-        [JsonConverter(typeof(UnixDateTimeConverter))]
-        public DateTimeOffset StopTime { get; set; }
+        public long ActualTimeInMilliseconds { get; set; }
     }
 }
