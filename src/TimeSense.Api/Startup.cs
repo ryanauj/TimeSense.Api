@@ -47,13 +47,6 @@ namespace TimeSense.Api
             }
 
             app.UseHttpsRedirection();
-            
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TimeSense Api V1");
-            });
 
             app.UseRouting();
 
