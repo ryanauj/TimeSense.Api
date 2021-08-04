@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,5 +11,9 @@ namespace TimeSense.Repository.Interfaces
         Task Update(TUserId userId, TId id, TEntityInput input);
         Task Delete(TUserId userId, TId id);
         Task<IEnumerable<TEntity>> List(TUserId userId);
+        Task<IEnumerable<TEntity>> ListWithOrder<TKey>(
+            TUserId userId,
+            bool descending,
+            Func<TEntity, TKey> orderResultsKeySelector);
     }
 }

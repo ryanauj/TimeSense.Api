@@ -33,9 +33,9 @@ namespace TimeSense.Repository
 
         public async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
         {
-            var allSensedTimes = await List(userId);
+            var allSensedTimes = await ListWithOrder(userId, true, (t => t.CreatedAt));
 
-            return allSensedTimes.OrderByDescending(t => t.CreatedAt).Take(numToRetrieve);
+            return allSensedTimes.Take(numToRetrieve);
         }
     }
 }

@@ -16,12 +16,12 @@ namespace TimeSense.Api.Controllers
     [Route("api/[controller]")]
     public class SensedTimesController : ControllerBase
     {
-        private readonly IRepository<string, string, SensedTimeInput, SensedTime> _repository;
+        private readonly ISensedTimesRepository _repository;
         private readonly ILogger<SensedTimesController> _logger;
         private const string MockCognitoIdentityId = "MOCK_COGNITO_IDENTITY_ID";
 
         public SensedTimesController(
-            IRepository<string, string, SensedTimeInput, SensedTime> repository,
+            ISensedTimesRepository repository,
             ILogger<SensedTimesController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -69,7 +69,22 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimes = await _repository.List(userId);
+            var sensedTimes = await _repository.ListWithOrder(userId, true, time => time.CreatedAt);
+
+            return Ok(sensedTimes);
+        }
+
+        // GET api/sensedTimes/latest/{latestToTake}
+        [HttpGet("latest/{latestToTake}")]
+        public async Task<ActionResult<IEnumerable<SensedTime>>> GetLatest(int latestToTake)
+        {
+            var userId = GetUserId(HttpContext);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
+            var sensedTimes = await _repository.GetLatestSensedTimes(userId, latestToTake);
 
             return Ok(sensedTimes);
         }

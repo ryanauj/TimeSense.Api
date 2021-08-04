@@ -1,4 +1,3 @@
-using TimeSense.Models;
 using TimeSense.Repository.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,7 +7,7 @@ namespace TimeSense.Repository.Configuration
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddSingleton<IRepository<string, string, SensedTimeInput, SensedTime>, SensedTimesRepository>();
+            services.AddSingleton<ISensedTimesRepository, SensedTimesRepository>();
 
             return services;
         }

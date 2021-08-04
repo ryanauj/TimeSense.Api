@@ -126,6 +126,20 @@ namespace TimeSense.Repository.Abstractions
             return response.Items.Select(AttributeMapToType<TEntity>);
         }
 
+        public async Task<IEnumerable<TEntity>> ListWithOrder<TKey>(
+            string userId,
+            bool descending,
+            Func<TEntity, TKey> orderResultsKeySelector)
+        {
+            if (orderResultsKeySelector == null) throw new ArgumentNullException(nameof(orderResultsKeySelector));
+
+            var items = await List(userId);
+
+            return descending
+                ? items.OrderByDescending(orderResultsKeySelector)
+                : items.OrderBy(orderResultsKeySelector);
+        }
+
         private T AttributeMapToType<T>(Dictionary<string, AttributeValue> attributeMap)
         {
             var json = Document.FromAttributeMap(attributeMap).ToJson();
