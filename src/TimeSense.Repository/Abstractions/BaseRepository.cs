@@ -11,7 +11,7 @@ using TimeSense.Serialization;
 
 namespace TimeSense.Repository.Abstractions
 {
-    public abstract class BaseRepository<TEntityInput, TEntity> : IRepository<string, string, TEntityInput, TEntity>
+    public abstract class BaseRepository<TEntityInput, TEntity> : IQueryableRepository<string, string, TEntityInput, TEntity>
         where TEntity : class, IEntity<string, string>
     {
         private const string UserIdKey = "UserId";
@@ -110,9 +110,8 @@ namespace TimeSense.Repository.Abstractions
             return _dynamoDb.DeleteItemAsync(request);
         }
 
-        public async Task<IEnumerable<TEntity>> List(string userId)
-        {
-            var request = new QueryRequest
+        public Task<IEnumerable<TEntity>> List(string userId) => Query(
+            new QueryRequest
             {
                 TableName = _tableName,
                 KeyConditionExpression = $"{UserIdKey} = {UserIdValueKey}",
@@ -120,11 +119,12 @@ namespace TimeSense.Repository.Abstractions
                 {
                     [UserIdValueKey] = new AttributeValue {S = userId},
                 }
-            };
-            var response = await _dynamoDb.QueryAsync(request);
-            var items = response.Items.Select(AttributeMapToType<TEntity>).ToList();
-            
-            return items;
+            });
+
+        public async Task<IEnumerable<TEntity>> Query(QueryRequest queryRequest)
+        {
+            var response = await _dynamoDb.QueryAsync(queryRequest);
+            return response.Items.Select(AttributeMapToType<TEntity>);
         }
 
         private T AttributeMapToType<T>(Dictionary<string, AttributeValue> attributeMap)

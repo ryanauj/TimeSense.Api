@@ -3,6 +3,7 @@ using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
 using TimeSense.Serialization;
 using Microsoft.AspNetCore.Hosting;
+using TimeSense.Repository.Interfaces;
 
 namespace TimeSense.Repository
 {
