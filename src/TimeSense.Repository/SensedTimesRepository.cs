@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
@@ -7,7 +10,7 @@ using TimeSense.Repository.Interfaces;
 
 namespace TimeSense.Repository
 {
-    public class SensedTimesRepository : BaseRepository<SensedTimeInput, SensedTime>
+    public class SensedTimesRepository : BaseRepository<SensedTimeInput, SensedTime>, ISensedTimesRepository
     {
         public SensedTimesRepository(IHostingEnvironment env, IAmazonDynamoDB dynamoDb, ISerializer serializer) :
             base($"sensed-time-table-{env.EnvironmentName}", dynamoDb, serializer)
@@ -27,5 +30,12 @@ namespace TimeSense.Repository
                 CreatedAt = baseEntity.CreatedAt,
                 UpdatedAt = baseEntity.UpdatedAt
             };
+
+        public async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
+        {
+            var allSensedTimes = await List(userId);
+
+            return allSensedTimes.OrderByDescending(t => t.CreatedAt).Take(numToRetrieve);
+        }
     }
 }
