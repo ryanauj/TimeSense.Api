@@ -1,6 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace TimeSense.Models
 {
@@ -10,10 +8,8 @@ namespace TimeSense.Models
         
         public string Id { get; set; }
         
-        [JsonConverter(typeof(UnixDateTimeConverter))]
         public DateTimeOffset UpdatedAt { get; set; }
         
-        [JsonConverter(typeof(UnixDateTimeConverter))]
         public DateTimeOffset CreatedAt { get; set; }
     }
 }

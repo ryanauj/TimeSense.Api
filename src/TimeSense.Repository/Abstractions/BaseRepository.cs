@@ -60,8 +60,8 @@ namespace TimeSense.Repository.Abstractions
             {
                 Id = id,
                 UserId = userId,
-                CreatedAt = DateTimeOffset.Now,
-                UpdatedAt = DateTimeOffset.Now
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
             var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);
@@ -81,7 +81,7 @@ namespace TimeSense.Repository.Abstractions
         public async Task Update(string userId, string id, TEntityInput input)
         {
             var baseEntity = await Get(userId, id);
-            baseEntity.UpdatedAt = DateTimeOffset.Now;
+            baseEntity.UpdatedAt = DateTime.Now;
             var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);
             var document = Document.FromJson(serializedItem);
@@ -122,10 +122,15 @@ namespace TimeSense.Repository.Abstractions
                 }
             };
             var response = await _dynamoDb.QueryAsync(request);
-            var items = response.Items.Select(i =>
-                _serializer.Deserialize<TEntity>(Document.FromAttributeMap(i).ToJson()));
+            var items = response.Items.Select(AttributeMapToType<TEntity>).ToList();
             
             return items;
+        }
+
+        private T AttributeMapToType<T>(Dictionary<string, AttributeValue> attributeMap)
+        {
+            var json = Document.FromAttributeMap(attributeMap).ToJson();
+            return _serializer.Deserialize<T>(json);
         }
     }
 }
