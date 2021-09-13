@@ -1,26 +1,16 @@
-resource "aws_dynamodb_table" "sensed_time_table" {
-  name = "sensed-time-table-${var.environment}"
+resource "aws_dynamodb_table" "sensed_time_metrics_table" {
+  name = "sensed-time-metrics-table-${var.environment}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "UserId"
-  range_key = "Id"
-  
+
   attribute {
     name = "UserId"
-    type = "S"
-  }
-  
-  # Should change this to CreatedAt or Modified at and use a GSI for Id for lookups
-  # since we are going to be mainly returning the most recent requests.
-  # Could also just make a GSI with CreatedAt or ModifiedAt as the range key,
-  # although would have to copy over most of the fields.
-  attribute {
-    name = "Id"
     type = "S"
   }
 }
 
 resource "aws_iam_policy" "dynamo_table" {
-  name        = "sensed-time-table-policy"
+  name        = "sensed-time-metrics-table-policy"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -43,7 +33,7 @@ resource "aws_iam_policy" "dynamo_table" {
         "dynamodb:Update*",
         "dynamodb:PutItem"
       ],
-      "Resource": "${aws_dynamodb_table.sensed_time_table.arn}",
+      "Resource": "${aws_dynamodb_table.sensed_time_metrics_table.arn}",
       "Effect": "Allow"
     }
   ]

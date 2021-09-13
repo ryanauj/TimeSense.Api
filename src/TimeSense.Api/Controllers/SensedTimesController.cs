@@ -106,7 +106,7 @@ namespace TimeSense.Api.Controllers
 
         // POST api/sensedTimes
         [HttpPost]
-        public async Task<ActionResult<IdentifierResponse<string>>> Post([FromBody] SensedTimeInput sensedTimeInput)
+        public async Task<ActionResult<SensedTime>> Post([FromBody] SensedTimeInput sensedTimeInput)
         {
             var userId = GetUserId(HttpContext);
             if (string.IsNullOrWhiteSpace(userId))
@@ -114,15 +114,14 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var id = await _repository.Create(userId, sensedTimeInput);
-            var response = new IdentifierResponse<string> {Id = id};
+            var sensedTime = await _repository.Create(userId, sensedTimeInput);
             
-            return Ok(response);
+            return Ok(sensedTime);
         }
 
         // PUT api/sensedTimes
         [HttpPut("{id}")]
-        public async Task<ActionResult<IdentifierResponse<string>>> Put(
+        public async Task<ActionResult<SensedTime>> Put(
             string id,
             [FromBody] SensedTimeInput sensedTimeInput
         )
@@ -133,10 +132,9 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            await _repository.Update(userId, id, sensedTimeInput);
-            var response = new IdentifierResponse<string> {Id = id};
+            var sensedTime = await _repository.Update(userId, id, sensedTimeInput);
 
-            return Ok(response);
+            return Ok(sensedTime);
         }
 
         // DELETE api/sensedTimes/{id}

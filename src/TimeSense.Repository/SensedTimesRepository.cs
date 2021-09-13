@@ -25,8 +25,8 @@ namespace TimeSense.Repository
             {
                 UserId = baseEntity.UserId,
                 Id = baseEntity.Id,
-                TargetTimeInMilliseconds = input.TargetTimeInMilliseconds,
-                ActualTimeInMilliseconds = input.ActualTimeInMilliseconds,
+                TargetTime = input.TargetTime ?? 0,
+                ActualTime = input.ActualTime ?? 0,
                 CreatedAt = baseEntity.CreatedAt,
                 UpdatedAt = baseEntity.UpdatedAt
             };

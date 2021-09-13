@@ -1,9 +1,12 @@
+using System;
+
 namespace TimeSense.Models
 {
+    [Serializable]
     public class SensedTimeInput
     {
-        public long TargetTimeInMilliseconds { get; set; }
+        public decimal? TargetTime { get; set; }
 
-        public long ActualTimeInMilliseconds { get; set; }
+        public decimal? ActualTime { get; set; }
     }
 }

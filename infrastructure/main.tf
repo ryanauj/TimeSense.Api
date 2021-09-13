@@ -6,8 +6,9 @@ provider "aws" {
 provider "archive" {}
 
 module "cognito_pools" {
-  source = "git::https://github.com/ryanauj/cognito-pools.git?ref=0.0.8"
+  source = "git::https://github.com/ryanauj/cognito-pools.git?ref=0.0.10"
   name = "${var.app_name}-${var.environment}"
+  username_attributes = ["email"]
 }
 
 module "lambda_api" {
@@ -34,6 +35,12 @@ module "lambda_api" {
 
 module "sensed_time_dynamodb_table" {
   source = "./modules/sensed_time_dynamodb_table"
+  environment = var.environment
+  role = module.lambda_api.lambda_iam_role
+}
+
+module "metrics_dynamodb_table" {
+  source = "./modules/metrics_dynamodb_table"
   environment = var.environment
   role = module.lambda_api.lambda_iam_role
 }
