@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TimeSense.Repository.Interfaces
 {
-    public interface IRepository<in TUserId, in TId, in TEntityInput, TEntity>
+    public interface ICompositeRepository<in TUserId, in TId, in TEntityInput, TEntity>
     {
         Task<TEntity> Get(TUserId userId, TId id);
         Task<TEntity> Create(TUserId userId, TEntityInput input);

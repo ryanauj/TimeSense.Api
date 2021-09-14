@@ -7,7 +7,7 @@ namespace TimeSense.Repository.Configuration
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddSingleton<ISensedTimesRepository, SensedTimesRepository>();
+            services.AddSingleton<SensedTimesRepository, SensedTimesRepository>();
 
             return services;
         }

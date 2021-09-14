@@ -11,8 +11,8 @@ using TimeSense.Serialization;
 
 namespace TimeSense.Repository.Abstractions
 {
-    public abstract class BaseRepository<TEntityInput, TEntity> : IRepository<string, string, TEntityInput, TEntity>
-        where TEntity : class, IEntity<string, string>
+    public abstract class BaseCompositeRepository<TEntityInput, TEntity> : ICompositeRepository<string, string, TEntityInput, TEntity>
+        where TEntity : class, ICompositeEntity<string, string>
     {
         private const string UserIdKey = "UserId";
         private const string UserIdValueKey = ":userId";
@@ -21,9 +21,9 @@ namespace TimeSense.Repository.Abstractions
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly ISerializer _serializer;
 
-        protected abstract TEntity Build(IEntity<string, string> commonData, TEntityInput input);
+        protected abstract TEntity Build(ICompositeEntity<string, string> commonData, TEntityInput input);
 
-        protected BaseRepository(
+        protected BaseCompositeRepository(
             string tableName,
             IAmazonDynamoDB dynamoDb,
             ISerializer serializer)
@@ -55,7 +55,7 @@ namespace TimeSense.Repository.Abstractions
 
         public async Task<TEntity> Create(string userId, TEntityInput input)
         {
-            var baseEntity = new BaseEntity<string, string>
+            var baseEntity = new BaseCompositeEntity<string, string>
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = userId,

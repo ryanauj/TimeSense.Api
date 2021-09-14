@@ -10,7 +10,7 @@ using TimeSense.Repository.Interfaces;
 
 namespace TimeSense.Repository
 {
-    public class SensedTimesRepository : BaseRepository<SensedTimeInput, SensedTime>, ISensedTimesRepository
+    public class SensedTimesRepository : BaseCompositeRepository<SensedTimeInput, SensedTime>
     {
         public SensedTimesRepository(IHostingEnvironment env, IAmazonDynamoDB dynamoDb, ISerializer serializer) :
             base($"sensed-time-table-{env.EnvironmentName}", dynamoDb, serializer)
@@ -18,7 +18,7 @@ namespace TimeSense.Repository
         }
 
         protected override SensedTime Build(
-            IEntity<string, string> baseEntity,
+            ICompositeEntity<string, string> baseEntity,
             SensedTimeInput input
         ) =>
             new SensedTime
@@ -31,7 +31,7 @@ namespace TimeSense.Repository
                 UpdatedAt = baseEntity.UpdatedAt
             };
 
-        public async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
+        public virtual async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
         {
             var allSensedTimes = await ListWithOrder(userId, true, (t => t.CreatedAt));
 
