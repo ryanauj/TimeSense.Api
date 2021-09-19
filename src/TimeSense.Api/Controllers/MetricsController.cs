@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeSense.Api.Extensions;
 using TimeSense.Api.Models;
+using TimeSense.Mapping;
 using TimeSense.Models;
 using TimeSense.Repository;
 
@@ -14,22 +14,25 @@ namespace TimeSense.Api.Controllers
     public class MetricsController : ControllerBase
     {
         private readonly MetricsRepository _repository;
+        private readonly MetricsInputMapper _mapper;
         private readonly ILogger<MetricsController> _logger;
 
         public MetricsController(
             MetricsRepository repository,
+            MetricsInputMapper mapper,
             ILogger<MetricsController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         private BadRequestObjectResult BadRequestErrorResponse(string message) => 
             BadRequest(new ErrorResponse(message));
         
-        // GET api/sensedTimes/{id}
+        // GET api/metrics
         [HttpGet]
-        public async Task<ActionResult<SensedTime>> Get()
+        public async Task<ActionResult<Metrics>> Get()
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -37,29 +40,31 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTime = await _repository.Get(userId);
+            var metrics = await _repository.Get(userId);
             
-            return Ok(sensedTime);
+            return Ok(metrics);
         }
 
-        // POST api/sensedTimes
+        // POST api/metrics
         [HttpPost]
-        public async Task<ActionResult<SensedTime>> Post([FromBody] IDictionary<string, dynamic> metrics)
+        public async Task<ActionResult<Metrics>> Post([FromBody] MetricsControllerInput controllerInput)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return BadRequestErrorResponse("No user id passed in.");
             }
+
+            var repositoryInput = _mapper.Map(controllerInput);
             
-            var sensedTime = await _repository.Create(userId, metrics);
+            var metrics = await _repository.Create(userId, repositoryInput);
             
-            return Ok(sensedTime);
+            return Ok(metrics);
         }
 
-        // PUT api/sensedTimes
+        // PUT api/metrics
         [HttpPut]
-        public async Task<ActionResult<SensedTime>> Put([FromBody] IDictionary<string, dynamic> metrics)
+        public async Task<ActionResult<Metrics>> Put([FromBody] MetricsControllerInput controllerInput)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -67,12 +72,14 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTime = await _repository.Update(userId, metrics);
+            var repositoryInput = _mapper.Map(controllerInput);
+            
+            var metrics = await _repository.Update(userId, repositoryInput);
 
-            return Ok(sensedTime);
+            return Ok(metrics);
         }
 
-        // DELETE api/sensedTimes/{id}
+        // DELETE api/metrics
         [HttpDelete]
         public async Task<ActionResult> Delete()
         {

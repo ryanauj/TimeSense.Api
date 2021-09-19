@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Microsoft.Extensions.Logging;
 using TimeSense.Models;
 using TimeSense.Repository.Interfaces;
 using TimeSense.Serialization;
@@ -17,19 +18,22 @@ namespace TimeSense.Repository.Abstractions
         private readonly string _tableName;
         private readonly IAmazonDynamoDB _dynamoDb;
         private readonly ISerializer _serializer;
+        private readonly ILogger<BaseSimpleRepository<TInput, T>> _logger;
 
         protected abstract T Build(ISimpleEntity<string> commonData, TInput input);
 
         protected BaseSimpleRepository(
             string tableName,
             IAmazonDynamoDB dynamoDb,
-            ISerializer serializer)
+            ISerializer serializer,
+            ILogger<BaseSimpleRepository<TInput, T>> _logger)
         {
             if (string.IsNullOrWhiteSpace(tableName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(tableName));
             _tableName = tableName;
             _dynamoDb = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            this._logger = _logger ?? throw new ArgumentNullException(nameof(_logger));
         }
 
         public async Task<T> Get(string id)
@@ -51,14 +55,15 @@ namespace TimeSense.Repository.Abstractions
 
         public async Task<T> Create(string id, TInput input)
         {
-            var baseItem = new BaseCompositeEntity<string, string>
+            var baseItem = new BaseSimpleEntity<string>
             {
-                Id = id,
+                UserId = id,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
             var item = Build(baseItem, input);
             var serializedItem = _serializer.Serialize(item);
+            _logger.LogInformation($"Create:\n{serializedItem}");
             var document = Document.FromJson(serializedItem);
             
             var request = new PutItemRequest

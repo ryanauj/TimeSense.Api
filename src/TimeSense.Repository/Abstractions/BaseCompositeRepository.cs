@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using DotKsuid;
 using TimeSense.Models;
 using TimeSense.Repository.Interfaces;
 using TimeSense.Serialization;
@@ -57,7 +58,7 @@ namespace TimeSense.Repository.Abstractions
         {
             var baseEntity = new BaseCompositeEntity<string, string>
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Ksuid.NewKsuid().ToString(),
                 UserId = userId,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now

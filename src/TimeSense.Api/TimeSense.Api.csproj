@@ -15,6 +15,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TimeSense.Mapping\TimeSense.Mapping.csproj" />
     <ProjectReference Include="..\TimeSense.Repository\TimeSense.Repository.csproj" />
     <ProjectReference Include="..\TimeSense.Serialization\TimeSense.Serialization.csproj" />
   </ItemGroup>

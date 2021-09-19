@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TimeSense.Mapping.Configuration;
 
 namespace TimeSense.Api
 {
@@ -36,6 +37,7 @@ namespace TimeSense.Api
             services.AddSwaggerGen();
             services.AddSerialization();
             services.AddRepositories();
+            services.AddMapping();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

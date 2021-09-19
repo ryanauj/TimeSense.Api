@@ -38,9 +38,3 @@ module "sensed_time_dynamodb_table" {
   environment = var.environment
   role = module.lambda_api.lambda_iam_role
 }
-
-module "metrics_dynamodb_table" {
-  source = "./modules/metrics_dynamodb_table"
-  environment = var.environment
-  role = module.lambda_api.lambda_iam_role
-}
