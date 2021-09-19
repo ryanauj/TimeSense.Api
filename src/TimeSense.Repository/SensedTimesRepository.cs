@@ -6,7 +6,6 @@ using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
 using TimeSense.Serialization;
 using Microsoft.AspNetCore.Hosting;
-using TimeSense.Repository.Interfaces;
 
 namespace TimeSense.Repository
 {
@@ -33,9 +32,11 @@ namespace TimeSense.Repository
 
         public virtual async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
         {
-            var allSensedTimes = await ListWithOrder(userId, true, (t => t.CreatedAt));
+            var allSensedTimes = await List(userId);
 
-            return allSensedTimes.Take(numToRetrieve);
+            var validSensedTimes = allSensedTimes.Where(x => x.UserId != x.Id);
+
+            return validSensedTimes.Take(numToRetrieve);
         }
     }
 }

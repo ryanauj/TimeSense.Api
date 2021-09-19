@@ -78,6 +78,30 @@ namespace TimeSense.Repository.Abstractions
             return item;
         }
 
+        public async Task<TEntity> Create(string userId, string id, TEntityInput input)
+        {
+            var baseEntity = new BaseCompositeEntity<string, string>
+            {
+                Id = id,
+                UserId = userId,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+            var item = Build(baseEntity, input);
+            var serializedItem = _serializer.Serialize(item);
+            var document = Document.FromJson(serializedItem);
+            
+            var request = new PutItemRequest
+            {
+                TableName = _tableName,
+                Item = document.ToAttributeMap()
+            };
+            
+            await _dynamoDb.PutItemAsync(request);
+
+            return item;
+        }
+
         public async Task<TEntity> Update(string userId, string id, TEntityInput input)
         {
             var baseEntity = await Get(userId, id);
@@ -85,10 +109,12 @@ namespace TimeSense.Repository.Abstractions
             var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);
             var document = Document.FromJson(serializedItem);
-            
-            var request = new PutItemRequest();
-            request.TableName = _tableName;
-            request.Item = document.ToAttributeMap();
+
+            var request = new PutItemRequest
+            {
+                TableName = _tableName,
+                Item = document.ToAttributeMap()
+            };
 
             await _dynamoDb.PutItemAsync(request);
 
@@ -124,20 +150,6 @@ namespace TimeSense.Repository.Abstractions
             var response = await _dynamoDb.QueryAsync(request);
             
             return response.Items.Select(AttributeMapToType<TEntity>);
-        }
-
-        public async Task<IEnumerable<TEntity>> ListWithOrder<TKey>(
-            string userId,
-            bool descending,
-            Func<TEntity, TKey> orderResultsKeySelector)
-        {
-            if (orderResultsKeySelector == null) throw new ArgumentNullException(nameof(orderResultsKeySelector));
-
-            var items = await List(userId);
-
-            return descending
-                ? items.OrderByDescending(orderResultsKeySelector)
-                : items.OrderBy(orderResultsKeySelector);
         }
 
         private T AttributeMapToType<T>(Dictionary<string, AttributeValue> attributeMap)

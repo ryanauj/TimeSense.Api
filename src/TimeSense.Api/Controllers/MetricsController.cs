@@ -57,7 +57,7 @@ namespace TimeSense.Api.Controllers
 
             var repositoryInput = _mapper.Map(controllerInput);
             
-            var metrics = await _repository.Create(userId, repositoryInput);
+            var metrics = await _repository.Create(userId, userId, repositoryInput);
             
             return Ok(metrics);
         }

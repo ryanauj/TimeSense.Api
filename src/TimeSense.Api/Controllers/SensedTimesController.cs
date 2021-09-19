@@ -37,7 +37,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimes = await _repository.ListWithOrder(userId, true, time => time.CreatedAt);
+            var sensedTimes = await _repository.List(userId);
 
             return Ok(sensedTimes);
         }

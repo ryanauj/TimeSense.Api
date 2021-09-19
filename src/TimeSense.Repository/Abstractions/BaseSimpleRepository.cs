@@ -26,14 +26,14 @@ namespace TimeSense.Repository.Abstractions
             string tableName,
             IAmazonDynamoDB dynamoDb,
             ISerializer serializer,
-            ILogger<BaseSimpleRepository<TInput, T>> _logger)
+            ILogger<BaseSimpleRepository<TInput, T>> logger)
         {
             if (string.IsNullOrWhiteSpace(tableName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(tableName));
             _tableName = tableName;
             _dynamoDb = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            this._logger = _logger ?? throw new ArgumentNullException(nameof(_logger));
+            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<T> Get(string id)
