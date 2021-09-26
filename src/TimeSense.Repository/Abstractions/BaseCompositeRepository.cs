@@ -105,6 +105,12 @@ namespace TimeSense.Repository.Abstractions
         public async Task<TEntity> Update(string userId, string id, TEntityInput input)
         {
             var baseEntity = await Get(userId, id);
+
+            if (string.IsNullOrWhiteSpace(baseEntity.UserId))
+            {
+                return await Create(userId, id, input);
+            }
+            
             baseEntity.UpdatedAt = DateTime.Now;
             var item = Build(baseEntity, input);
             var serializedItem = _serializer.Serialize(item);

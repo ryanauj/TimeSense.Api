@@ -34,6 +34,7 @@ namespace TimeSense.Metrics
         public async Task AddMetrics(string userId, IDictionary<int, IList<SensedTime>> sensedTimesByTargetTime)
         {
             var metrics = await _repository.Get(userId) ?? new MetricsEntity();
+            metrics.Metrics ??= new Dictionary<int, Metric>();
 
             foreach (var kvp in sensedTimesByTargetTime)
             {
