@@ -87,6 +87,7 @@ namespace TimeSense.Api.Controllers
             }
             
             var sensedTime = await _repository.Create(userId, sensedTimeInput);
+            await _metricsProcessor.AddMetric(userId, sensedTime);
             
             return Ok(sensedTime);
         }
