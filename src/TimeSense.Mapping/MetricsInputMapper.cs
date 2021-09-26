@@ -1,20 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using TimeSense.Models;
 
 namespace TimeSense.Mapping
 {
     public class MetricsInputMapper
     {
-        public MetricsRepositoryInput Map(MetricsControllerInput controllerInput)
-        {
-            var averages = controllerInput.Averages.ToDictionary(
+        public IDictionary<int, Metric> Map(IDictionary<string, Metric> controllerInput) =>
+            controllerInput.ToDictionary(
                 kvp => int.Parse(kvp.Key),
                 kvp => kvp.Value);
-            
-            return new MetricsRepositoryInput
-            {
-                Averages = averages
-            };
-        }
     }
 }

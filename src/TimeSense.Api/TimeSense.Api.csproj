@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimeSense.Mapping\TimeSense.Mapping.csproj" />
+    <ProjectReference Include="..\TimeSense.Metrics\TimeSense.Metrics.csproj" />
     <ProjectReference Include="..\TimeSense.Repository\TimeSense.Repository.csproj" />
     <ProjectReference Include="..\TimeSense.Serialization\TimeSense.Serialization.csproj" />
   </ItemGroup>

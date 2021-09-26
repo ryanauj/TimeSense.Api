@@ -6,6 +6,7 @@ using TimeSense.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeSense.Api.Extensions;
+using TimeSense.Metrics;
 using TimeSense.Repository;
 
 namespace TimeSense.Api.Controllers
@@ -14,13 +15,16 @@ namespace TimeSense.Api.Controllers
     public class SensedTimesController : ControllerBase
     {
         private readonly SensedTimesRepository _repository;
+        private readonly MetricsProcessor _metricsProcessor;
         private readonly ILogger<SensedTimesController> _logger;
 
         public SensedTimesController(
             SensedTimesRepository repository,
+            MetricsProcessor metricsProcessor,
             ILogger<SensedTimesController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _metricsProcessor = metricsProcessor ?? throw new ArgumentNullException(nameof(metricsProcessor));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
