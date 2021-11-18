@@ -2,9 +2,9 @@ using System;
 
 namespace TimeSense.Models
 {
-    public interface ISimpleEntity<TUserId>
+    public interface IEntity<TId>
     {
-        TUserId UserId { get; set; }
+        TId Id { get; set; }
         DateTimeOffset CreatedAt { get; set; }
         DateTimeOffset UpdatedAt { get; set; }
     }

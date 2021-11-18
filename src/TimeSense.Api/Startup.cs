@@ -37,7 +37,7 @@ namespace TimeSense.Api
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddSwaggerGen();
             services.AddSerialization();
-            services.AddRepositories();
+            services.AddRepositories(Configuration);
             services.AddMapping();
             services.AddMetrics();
         }

@@ -28,6 +28,9 @@ module "lambda_api" {
   
   variables = {
     ASPNETCORE_ENVIRONMENT = var.environment
+    SensedTimesConfiguration__ConnectionString = var.time_sense_connection_string
+    SensedTimesConfiguration__CollectionName = "SensedTimes"
+    SensedTimesConfiguration__DatabaseName = "TimeSense"
   }
   
   provider_arns = [module.cognito_pools.user_pool_arn]

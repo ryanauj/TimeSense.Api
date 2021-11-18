@@ -12,7 +12,7 @@ using TimeSense.Serialization;
 namespace TimeSense.Repository.Abstractions
 {
     public abstract class BaseSimpleRepository<TInput, T> : ISimpleRepository<string, TInput, T>
-        where T : class, ISimpleEntity<string>
+        where T : class, IEntity<string>
     {
         private const string IdKey = "UserId";
         private readonly string _tableName;
@@ -20,7 +20,7 @@ namespace TimeSense.Repository.Abstractions
         private readonly ISerializer _serializer;
         private readonly ILogger<BaseSimpleRepository<TInput, T>> _logger;
 
-        protected abstract T Build(ISimpleEntity<string> commonData, TInput input);
+        protected abstract T Build(IEntity<string> commonData, TInput input);
 
         protected BaseSimpleRepository(
             string tableName,
@@ -55,9 +55,9 @@ namespace TimeSense.Repository.Abstractions
 
         public async Task<T> Create(string id, TInput input)
         {
-            var baseItem = new BaseSimpleEntity<string>
+            var baseItem = new BaseEntity<string>
             {
-                UserId = id,
+                Id = id,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };

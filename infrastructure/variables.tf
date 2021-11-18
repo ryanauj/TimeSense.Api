@@ -42,3 +42,8 @@ variable "public_routes" {
   default = {}
   description = "An object containing all of the public routes and the corresponding HTTP method. This should be setup with the { 'route': { 'http_method': http_method_value } } schema."
 }
+
+variable "time_sense_connection_string" {
+  type = string
+  description = "The connection string for the mongodb TimeSense database."
+}

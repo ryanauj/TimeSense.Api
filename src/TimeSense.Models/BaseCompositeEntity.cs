@@ -1,7 +1,7 @@
 namespace TimeSense.Models
 {
-    public class BaseCompositeEntity<TUserId, TId> : BaseSimpleEntity<TUserId>, ICompositeEntity<TUserId, TId>
+    public class BaseCompositeEntity<TUserId, TId> : BaseEntity<TId>, ICompositeEntity<TUserId, TId>
     {
-        public TId Id { get; set; }
+        public TUserId UserId { get; set; }
     }
 }

@@ -48,7 +48,7 @@ namespace TimeSense.Api.Controllers
 
         // GET api/sensedTimes/latest/{latestToTake}
         [HttpGet("latest/{latestToTake}")]
-        public async Task<ActionResult<IEnumerable<SensedTime>>> GetLatest(int latestToTake)
+        public ActionResult<IEnumerable<SensedTime>> GetLatest(int latestToTake)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -56,7 +56,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimes = await _repository.GetLatestSensedTimes(userId, latestToTake);
+            var sensedTimes = _repository.GetLatestSensedTimes(userId, latestToTake);
 
             return Ok(sensedTimes);
         }
@@ -94,7 +94,7 @@ namespace TimeSense.Api.Controllers
 
         // PUT api/sensedTimes
         [HttpPut("{id}")]
-        public async Task<ActionResult<SensedTime>> Put(
+        public async Task<ActionResult> Put(
             string id,
             [FromBody] SensedTimeInput sensedTimeInput
         )
@@ -105,9 +105,10 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTime = await _repository.Update(userId, id, sensedTimeInput);
+            await _repository.Update(userId, id, sensedTimeInput);
+            // TODO: Update metrics on update
 
-            return Ok(sensedTime);
+            return Ok();
         }
 
         // DELETE api/sensedTimes/{id}
@@ -121,6 +122,7 @@ namespace TimeSense.Api.Controllers
             }
             
             await _repository.Delete(userId, id);
+            // TODO: Update metrics on remove
 
             return Ok();
         }

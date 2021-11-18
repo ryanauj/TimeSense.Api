@@ -2,8 +2,8 @@ using System;
 
 namespace TimeSense.Models
 {
-    public interface ICompositeEntity<TUserId, TId> : ISimpleEntity<TUserId>
+    public interface ICompositeEntity<TUserId, TId> : IEntity<TId>
     {
-        TId Id { get; set; }
+        TUserId UserId { get; set; }
     }
 }

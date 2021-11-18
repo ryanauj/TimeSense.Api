@@ -5,6 +5,11 @@
 PROJECT_NAME=TimeSense.Api
 INFRASTRUCTURE_DIR=infrastructure
 
+if [[ -z "${TIME_SENSE_CONNECTION_STRING}" ]]; then
+  echo "Environment variable TIME_SENSE_CONNECTION_STRING must be set."
+  exit 1
+fi
+
 #Create zip file in solution root dir
 echo "Checking for existing $PROJECT_NAME.zip file."
 if test -f "$PROJECT_NAME.zip"; then
@@ -30,6 +35,7 @@ echo "Deploying service."
 pushd $INFRASTRUCTURE_DIR
 terraform apply -auto-approve \
   -var='lambda_filename=../TimeSense.Api.zip' \
-  -var='lambda_handler=TimeSense.Api::TimeSense.Api.LambdaEntryPoint::FunctionHandlerAsync'
+  -var='lambda_handler=TimeSense.Api::TimeSense.Api.LambdaEntryPoint::FunctionHandlerAsync' \
+  -var="time_sense_connection_string=${TIME_SENSE_CONNECTION_STRING}"
 
 popd

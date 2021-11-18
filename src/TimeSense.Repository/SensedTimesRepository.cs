@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
 using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
-using TimeSense.Serialization;
-using Microsoft.AspNetCore.Hosting;
+using MongoDB.Driver;
+using TimeSense.Repository.Configuration;
 
 namespace TimeSense.Repository
 {
-    public class SensedTimesRepository : BaseCompositeRepository<SensedTimeInput, SensedTime>
+    public class SensedTimesRepository : BaseMongoUserCentricRepository<SensedTimeInput, SensedTime>
     {
-        public SensedTimesRepository(IHostingEnvironment env, IAmazonDynamoDB dynamoDb, ISerializer serializer) :
-            base($"sensed-time-table-{env.EnvironmentName}", dynamoDb, serializer)
+        public SensedTimesRepository(ISensedTimesConfiguration sensedTimesConfiguration) :
+            base(sensedTimesConfiguration)
         {
         }
 
@@ -30,11 +29,13 @@ namespace TimeSense.Repository
                 UpdatedAt = baseEntity.UpdatedAt
             };
 
-        public virtual async Task<IEnumerable<SensedTime>> GetLatestSensedTimes(string userId, int numToRetrieve)
-        {
-            var allSensedTimes = await List(userId);
+        public Task<IEnumerable<SensedTime>> List(string userId) => List(st => st.UserId == userId);
 
-            var validSensedTimes = allSensedTimes.Where(x => x.UserId != x.Id);
+        public IEnumerable<SensedTime> GetLatestSensedTimes(string userId, int numToRetrieve)
+        {
+            var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId);
+
+            var validSensedTimes = allSensedTimesFluent.SortBy(st => st.CreatedAt).ToEnumerable();
 
             return validSensedTimes.Take(numToRetrieve);
         }
