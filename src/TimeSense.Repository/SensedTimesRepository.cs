@@ -10,8 +10,8 @@ namespace TimeSense.Repository
 {
     public class SensedTimesRepository : BaseMongoUserCentricRepository<SensedTimeInput, SensedTime>
     {
-        public SensedTimesRepository(ISensedTimesConfiguration sensedTimesConfiguration) :
-            base(sensedTimesConfiguration)
+        public SensedTimesRepository(IMongoCollection<SensedTime> sensedTimesCollection) :
+            base(sensedTimesCollection)
         {
         }
 

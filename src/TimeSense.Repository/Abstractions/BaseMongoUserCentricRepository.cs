@@ -15,12 +15,9 @@ namespace TimeSense.Repository.Abstractions
     {
         protected readonly IMongoCollection<TEntity> EntityCollection;
 
-        protected BaseMongoUserCentricRepository(ISensedTimesConfiguration sensedTimesConfiguration)
+        protected BaseMongoUserCentricRepository(IMongoCollection<TEntity> entityCollection)
         {
-            var client = new MongoClient(sensedTimesConfiguration.ConnectionString);
-            var database = client.GetDatabase(sensedTimesConfiguration.DatabaseName);
-            
-            EntityCollection = database.GetCollection<TEntity>(sensedTimesConfiguration.CollectionName);
+            EntityCollection = entityCollection ?? throw new ArgumentNullException(nameof(entityCollection));
         }
 
         private static bool EntityHasUserIdAndId(TEntity entity, string userId, string id)
