@@ -15,16 +15,11 @@ namespace TimeSense.Api.Controllers
     public class SensedTimesController : ControllerBase
     {
         private readonly SensedTimesRepository _repository;
-        private readonly MetricsProcessor _metricsProcessor;
         private readonly ILogger<SensedTimesController> _logger;
 
-        public SensedTimesController(
-            SensedTimesRepository repository,
-            MetricsProcessor metricsProcessor,
-            ILogger<SensedTimesController> logger)
+        public SensedTimesController(SensedTimesRepository repository, ILogger<SensedTimesController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _metricsProcessor = metricsProcessor ?? throw new ArgumentNullException(nameof(metricsProcessor));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -87,7 +82,6 @@ namespace TimeSense.Api.Controllers
             }
             
             var sensedTime = await _repository.Create(userId, sensedTimeInput);
-            await _metricsProcessor.AddMetric(userId, sensedTime);
             
             return Ok(sensedTime);
         }

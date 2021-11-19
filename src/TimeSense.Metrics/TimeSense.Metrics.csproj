@@ -6,7 +6,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TimeSense.Models\TimeSense.Models.csproj" />
-      <ProjectReference Include="..\TimeSense.Repository\TimeSense.Repository.csproj" />
     </ItemGroup>
 
 </Project>

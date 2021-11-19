@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TimeSense.Mapping.Configuration;
-using TimeSense.Metrics;
 
 namespace TimeSense.Api
 {
@@ -39,7 +38,6 @@ namespace TimeSense.Api
             services.AddSerialization();
             services.AddRepositories(Configuration);
             services.AddMapping();
-            services.AddMetrics();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

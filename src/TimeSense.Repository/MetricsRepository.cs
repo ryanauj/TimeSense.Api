@@ -1,36 +1,52 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Microsoft.AspNetCore.Hosting;
+using MongoDB.Driver;
+using TimeSense.Metrics;
 using TimeSense.Models;
-using TimeSense.Repository.Abstractions;
-using TimeSense.Serialization;
 
 namespace TimeSense.Repository
 {
-    public class MetricsRepository : BaseCompositeRepository<IDictionary<int, Metric>, MetricsEntity>
+    public class MetricsRepository
     {
-        public MetricsRepository(IHostingEnvironment env, IAmazonDynamoDB dynamoDb, ISerializer serializer) :
-            base($"sensed-time-table-{env.EnvironmentName}", dynamoDb, serializer)
+        private readonly IMongoCollection<SensedTime> _sensedTimesCollection;
+        
+        public MetricsRepository(IMongoCollection<SensedTime> sensedTimesCollection)
         {
+            _sensedTimesCollection = sensedTimesCollection ?? throw new ArgumentNullException(nameof(sensedTimesCollection));
         }
 
-        public Task<MetricsEntity> Get(string userId) => Get(userId, userId);
-        
-        public Task<MetricsEntity> Update(string userId, IDictionary<int, Metric> input) => Update(userId, userId, input);
-
-        public Task Delete(string userId) => Delete(userId, userId);
-        
-        protected override MetricsEntity Build(ICompositeEntity<string, string> commonData, IDictionary<int, Metric> input)
+        public async Task<MetricsEntity> Get(string userId)
         {
+            var distinctTargetTimesForUserCursor = await _sensedTimesCollection.DistinctAsync(
+                st => st.TargetTime, st => st.UserId == userId);
+            var distinctTargetTimes = distinctTargetTimesForUserCursor.ToEnumerable();
+
+            var sensedTimesByTargetTimeTasks =
+                distinctTargetTimes.Select(targetTime => GetSensedTimesByTargetTime(userId, targetTime)).ToList();
+            
+            await Task.WhenAll(sensedTimesByTargetTimeTasks);
+
+            var sensedTimesByTargetTimes =
+                sensedTimesByTargetTimeTasks
+                    .Select(sensedTimesByTargetTimeTask => sensedTimesByTargetTimeTask.Result)
+                    .ToDictionary(sts => sts.First().TargetTime, sts => sts);
+
+            var metrics = sensedTimesByTargetTimes.CalculateMetrics();
+            
             return new MetricsEntity
             {
-                UserId = commonData.UserId,
-                Id = commonData.Id,
-                CreatedAt = commonData.CreatedAt,
-                UpdatedAt = commonData.UpdatedAt,
-                Metrics = input
+                UserId = userId,
+                Metrics = metrics
             };
+        }
+
+        private async Task<IReadOnlyList<SensedTime>> GetSensedTimesByTargetTime(string userId, decimal targetTime)
+        {
+            var targetTimesCursor = await _sensedTimesCollection.FindAsync(
+                st => st.UserId == userId && st.TargetTime == targetTime);
+            return await targetTimesCursor.ToListAsync();
         }
     }
 }

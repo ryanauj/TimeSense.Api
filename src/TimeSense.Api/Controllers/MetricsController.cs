@@ -15,24 +15,16 @@ namespace TimeSense.Api.Controllers
     [Route("api/[controller]")]
     public class MetricsController : ControllerBase
     {
-        private readonly SensedTimesRepository _sensedTimesRepository;
         private readonly MetricsRepository _metricsRepository;
-        private readonly MetricsProcessor _metricsProcessor;
-        private readonly MetricsInputMapper _mapper;
         private readonly ILogger<MetricsController> _logger;
 
         public MetricsController(
             SensedTimesRepository sensedTimesRepository,
             MetricsRepository metricsRepository,
-            MetricsProcessor metricsProcessor,
             MetricsInputMapper mapper,
             ILogger<MetricsController> logger)
         {
-            _sensedTimesRepository = sensedTimesRepository ??
-                                     throw new ArgumentNullException(nameof(sensedTimesRepository));
             _metricsRepository = metricsRepository ?? throw new ArgumentNullException(nameof(metricsRepository));
-            _metricsProcessor = metricsProcessor ?? throw new ArgumentNullException(nameof(metricsProcessor));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -56,65 +48,24 @@ namespace TimeSense.Api.Controllers
 
         // POST api/metrics
         [HttpPost]
-        public async Task<ActionResult<MetricsEntity>> RecalculateMetrics()
+        public ActionResult RecalculateMetrics()
         {
-            var userId = HttpContext.GetUserId(_logger);
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequestErrorResponse("No user id passed in.");
-            }
-            
-
-            var allSensedTimes = await _sensedTimesRepository.List(userId);
-            var sensedTimesByTargetValue = new Dictionary<int, IList<SensedTime>>();
-            foreach (var sensedTime in allSensedTimes)
-            {
-                var targetTime = decimal.ToInt32(sensedTime.TargetTime);
-                if (!sensedTimesByTargetValue.ContainsKey(targetTime))
-                {
-                    sensedTimesByTargetValue[targetTime] = new List<SensedTime>();
-                }
-                
-                sensedTimesByTargetValue[targetTime].Add(sensedTime);
-            }
-
-            await _metricsRepository.Delete(userId);
-            await _metricsProcessor.AddMetrics(userId, sensedTimesByTargetValue);
-            
-            var metrics = await _metricsRepository.Get(userId);
-            
-            return Ok(metrics);
+            return Ok();
         }
 
         // PUT api/metrics
+        [Obsolete]
         [HttpPut]
-        public async Task<ActionResult<MetricsEntity>> Put([FromBody] IDictionary<string, Metric> controllerInput)
+        public ActionResult Put([FromBody] IDictionary<string, Metric> controllerInput)
         {
-            var userId = HttpContext.GetUserId(_logger);
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequestErrorResponse("No user id passed in.");
-            }
-            
-            var repositoryInput = _mapper.Map(controllerInput);
-            
-            var metrics = await _metricsRepository.Update(userId, repositoryInput);
-
-            return Ok(metrics);
+            return Ok();
         }
 
         // DELETE api/metrics
+        [Obsolete]
         [HttpDelete]
-        public async Task<ActionResult> Delete()
+        public ActionResult Delete()
         {
-            var userId = HttpContext.GetUserId(_logger);
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequestErrorResponse("No user id passed in.");
-            }
-            
-            await _metricsRepository.Delete(userId);
-
             return Ok();
         }
     }
