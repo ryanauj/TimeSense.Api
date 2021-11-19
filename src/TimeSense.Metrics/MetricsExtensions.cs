@@ -22,7 +22,7 @@ namespace TimeSense.Metrics
         private static Metric CalculateMetric(this IReadOnlyList<SensedTime> sensedTimes, int mostRecentToTake = 5)
         {
             var sensedTimesSortedByActualTime = sensedTimes.OrderBy(st => st.ActualTime).ToList();
-            var sensedTimesSortedByDate = sensedTimes.OrderBy(st => st.CreatedAt);
+            var sensedTimesSortedByDate = sensedTimes.OrderByDescending(st => st.CreatedAt);
 
             return new Metric
             {
