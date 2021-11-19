@@ -12,6 +12,6 @@ namespace TimeSense.Models
         public decimal Median { get; set; }
         public decimal Min { get; set; }
         public decimal Max { get; set; }
-        public IEnumerable<decimal> MostRecent { get; set; }
+        public IEnumerable<SensedTime> MostRecent { get; set; }
     }
 }

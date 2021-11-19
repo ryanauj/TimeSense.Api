@@ -32,7 +32,7 @@ namespace TimeSense.Metrics
                 Min = sensedTimesSortedByActualTime.First().ActualTime,
                 Max = sensedTimesSortedByActualTime.Last().ActualTime,
                 Total = sensedTimesSortedByActualTime.Count,
-                MostRecent = sensedTimesSortedByDate.Take(mostRecentToTake).Select(st => st.ActualTime)
+                MostRecent = sensedTimesSortedByDate.Take(mostRecentToTake)
             };
         }
 
