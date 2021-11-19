@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Amazon.DynamoDBv2;
 using TimeSense.Repository.Configuration;
 using TimeSense.Serialization.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -27,8 +26,6 @@ namespace TimeSense.Api
                 _ => _.AddDefaultPolicy(
                     builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
                 ));
-            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-            services.AddAWSService<IAmazonDynamoDB>();
             services.AddHealthChecks();
             services.AddControllers()
                 .AddNewtonsoftJson()
