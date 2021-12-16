@@ -6,7 +6,6 @@ using TimeSense.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeSense.Api.Extensions;
-using TimeSense.Metrics;
 using TimeSense.Repository;
 
 namespace TimeSense.Api.Controllers

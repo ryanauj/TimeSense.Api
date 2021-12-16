@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using TimeSense.Metrics;
 using TimeSense.Models;
+using TimeSense.Repository.Extensions;
 
 namespace TimeSense.Repository
 {
@@ -19,9 +19,7 @@ namespace TimeSense.Repository
 
         public async Task<MetricsEntity> Get(string userId)
         {
-            var distinctTargetTimesForUserCursor = await _sensedTimesCollection.DistinctAsync(
-                st => st.TargetTime, st => st.UserId == userId);
-            var distinctTargetTimes = distinctTargetTimesForUserCursor.ToEnumerable();
+            var distinctTargetTimes = await _sensedTimesCollection.GetUserDistinctTargetTimes(userId);
 
             var sensedTimesByTargetTimeTasks =
                 distinctTargetTimes.Select(targetTime => GetSensedTimesByTargetTime(userId, targetTime)).ToList();

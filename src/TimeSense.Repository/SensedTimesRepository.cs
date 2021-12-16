@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using TimeSense.Models;
 using TimeSense.Repository.Abstractions;
 using MongoDB.Driver;
-using TimeSense.Repository.Configuration;
 
 namespace TimeSense.Repository
 {
@@ -36,6 +35,37 @@ namespace TimeSense.Repository
             var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId);
 
             var validSensedTimes = allSensedTimesFluent.SortBy(st => st.CreatedAt).ToEnumerable();
+
+            return validSensedTimes.Take(numToRetrieve);
+        }
+
+        public IDictionary<decimal, IList<SensedTime>> GetLatestSensedTimesByTargetTime(string userId, int? numToRetrieve=null)
+        {
+            var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId);
+
+            var validSensedTimes = allSensedTimesFluent.SortBy(st => st.CreatedAt).ToEnumerable();
+
+            var sensedTimesByTargetTime = new Dictionary<decimal, IList<SensedTime>>();
+            foreach (var sensedTime in validSensedTimes)
+            {
+                if (!sensedTimesByTargetTime.ContainsKey(sensedTime.TargetTime))
+                {
+                    sensedTimesByTargetTime[sensedTime.TargetTime] = new [] { sensedTime };
+                }
+                else if (numToRetrieve != null && sensedTimesByTargetTime[sensedTime.TargetTime].Count < numToRetrieve)
+                {
+                    sensedTimesByTargetTime[sensedTime.TargetTime].Add(sensedTime);
+                }
+            }
+
+            return sensedTimesByTargetTime;
+        }
+
+        public IEnumerable<SensedTime> GetLatestSensedTimesForTargetTime(string userId, decimal targetTime, int numToRetrieve)
+        {
+            var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId && st.TargetTime == targetTime);
+
+            var validSensedTimes = allSensedTimesFluent.ToEnumerable();
 
             return validSensedTimes.Take(numToRetrieve);
         }

@@ -2,7 +2,7 @@
 using System.Linq;
 using TimeSense.Models;
 
-namespace TimeSense.Metrics
+namespace TimeSense.Repository.Extensions
 {
     public static class MetricsExtensions
     {

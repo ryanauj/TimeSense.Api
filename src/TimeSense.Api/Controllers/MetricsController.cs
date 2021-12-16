@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeSense.Api.Extensions;
 using TimeSense.Api.Models;
-using TimeSense.Mapping;
-using TimeSense.Metrics;
 using TimeSense.Models;
 using TimeSense.Repository;
 
@@ -18,11 +15,7 @@ namespace TimeSense.Api.Controllers
         private readonly MetricsRepository _metricsRepository;
         private readonly ILogger<MetricsController> _logger;
 
-        public MetricsController(
-            SensedTimesRepository sensedTimesRepository,
-            MetricsRepository metricsRepository,
-            MetricsInputMapper mapper,
-            ILogger<MetricsController> logger)
+        public MetricsController(MetricsRepository metricsRepository, ILogger<MetricsController> logger)
         {
             _metricsRepository = metricsRepository ?? throw new ArgumentNullException(nameof(metricsRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,29 +37,6 @@ namespace TimeSense.Api.Controllers
             var metrics = await _metricsRepository.Get(userId);
             
             return Ok(metrics);
-        }
-
-        // POST api/metrics
-        [HttpPost]
-        public ActionResult RecalculateMetrics()
-        {
-            return Ok();
-        }
-
-        // PUT api/metrics
-        [Obsolete]
-        [HttpPut]
-        public ActionResult Put([FromBody] IDictionary<string, Metric> controllerInput)
-        {
-            return Ok();
-        }
-
-        // DELETE api/metrics
-        [Obsolete]
-        [HttpDelete]
-        public ActionResult Delete()
-        {
-            return Ok();
         }
     }
 }
