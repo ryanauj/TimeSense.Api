@@ -55,9 +55,24 @@ namespace TimeSense.Api.Controllers
             return Ok(sensedTimes);
         }
 
-        // GET api/sensedTimes/{latestToTake}
+        // GET api/sensedTimes/target
+        [HttpGet("target")]
+        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTime()
+        {
+            var userId = HttpContext.GetUserId(_logger);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId);
+
+            return Ok(sensedTimesByTargetTime);
+        }
+
+        // GET api/sensedTimes/target/{latestToTake}
         [HttpGet("target/{latestToTake}")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTime(int? latestToTake)
+        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTimeWithLatest(int? latestToTake)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))

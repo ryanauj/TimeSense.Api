@@ -20,13 +20,10 @@ namespace TimeSense.Repository.Abstractions
             EntityCollection = entityCollection ?? throw new ArgumentNullException(nameof(entityCollection));
         }
 
-        private static bool EntityHasUserIdAndId(TEntity entity, string userId, string id)
-            => entity.Id == id && entity.UserId == userId;
-
         public async Task<TEntity> Get(string userId, string id)
         {
             var entities = await EntityCollection.FindAsync(
-                entity => EntityHasUserIdAndId(entity, userId, id));
+                entity => entity.Id == id && entity.UserId == userId);
             return entities.FirstOrDefault();
         }
 
@@ -54,12 +51,12 @@ namespace TimeSense.Repository.Abstractions
             currentEntity.UpdatedAt = DateTimeOffset.Now;
             var updatedEntity = Build(currentEntity, input);
 
-            await EntityCollection.ReplaceOneAsync(entity => EntityHasUserIdAndId(entity, userId, id), updatedEntity);
+            await EntityCollection.ReplaceOneAsync(entity => entity.Id == id && entity.UserId == userId, updatedEntity);
         }
 
         public Task Delete(string userId, string id)
         {
-            return EntityCollection.DeleteOneAsync(entity => EntityHasUserIdAndId(entity, userId, id));
+            return EntityCollection.DeleteOneAsync(entity => entity.Id == id && entity.UserId == userId);
         }
 
         public async Task<IEnumerable<TEntity>> List(Expression<Func<TEntity, bool>> filter)

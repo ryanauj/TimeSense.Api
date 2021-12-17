@@ -50,9 +50,9 @@ namespace TimeSense.Repository
             {
                 if (!sensedTimesByTargetTime.ContainsKey(sensedTime.TargetTime))
                 {
-                    sensedTimesByTargetTime[sensedTime.TargetTime] = new [] { sensedTime };
+                    sensedTimesByTargetTime[sensedTime.TargetTime] = new List<SensedTime> { sensedTime };
                 }
-                else if (numToRetrieve != null && sensedTimesByTargetTime[sensedTime.TargetTime].Count < numToRetrieve)
+                else if (numToRetrieve == null || sensedTimesByTargetTime[sensedTime.TargetTime].Count < numToRetrieve)
                 {
                     sensedTimesByTargetTime[sensedTime.TargetTime].Add(sensedTime);
                 }
