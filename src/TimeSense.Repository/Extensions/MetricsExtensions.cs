@@ -41,7 +41,7 @@ namespace TimeSense.Repository.Extensions
             if (sensedTimesSortedByActualTime.Count == 1) return sensedTimesSortedByActualTime.First().ActualTime;
             
             var medianIndex = sensedTimesSortedByActualTime.Count / 2;
-            if (sensedTimesSortedByActualTime.Count % 2 == 0) return sensedTimesSortedByActualTime[medianIndex].ActualTime;
+            if (sensedTimesSortedByActualTime.Count % 2 == 1) return sensedTimesSortedByActualTime[medianIndex].ActualTime;
 
             var fasterTime = sensedTimesSortedByActualTime[medianIndex];
             var slowerTime = sensedTimesSortedByActualTime[medianIndex + 1];
