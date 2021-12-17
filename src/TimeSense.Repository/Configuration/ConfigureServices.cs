@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -10,7 +11,8 @@ namespace TimeSense.Repository.Configuration
     {
         public static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<SensedTimesConfiguration>(configuration.GetSection(nameof(SensedTimesConfiguration)));
+            var section = configuration.GetSection(nameof(SensedTimesConfiguration));
+            services.Configure<SensedTimesConfiguration>(section);
             services.AddSingleton<ISensedTimesConfiguration>(sp =>
                 sp.GetRequiredService<IOptions<SensedTimesConfiguration>>().Value);
             services.AddSingleton<IMongoClient>(sp =>

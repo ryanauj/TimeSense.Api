@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <AWSProjectType>Lambda</AWSProjectType>
     <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <UserSecretsId>6918b3cc-ac88-464d-9244-4c85dc62801a</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.3.0" />
@@ -14,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimeSense.Mapping\TimeSense.Mapping.csproj" />
-    <ProjectReference Include="..\TimeSense.Metrics\TimeSense.Metrics.csproj" />
     <ProjectReference Include="..\TimeSense.Repository\TimeSense.Repository.csproj" />
     <ProjectReference Include="..\TimeSense.Serialization\TimeSense.Serialization.csproj" />
   </ItemGroup>
