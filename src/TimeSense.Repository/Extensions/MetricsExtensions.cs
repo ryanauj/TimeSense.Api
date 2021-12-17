@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TimeSense.Models;
 
@@ -40,7 +41,7 @@ namespace TimeSense.Repository.Extensions
         {
             if (sensedTimesSortedByActualTime.Count == 1) return sensedTimesSortedByActualTime.First().ActualTime;
             
-            var medianIndex = sensedTimesSortedByActualTime.Count / 2;
+            var medianIndex = (sensedTimesSortedByActualTime.Count / 2) - 1;
             if (sensedTimesSortedByActualTime.Count % 2 == 1) return sensedTimesSortedByActualTime[medianIndex].ActualTime;
 
             var fasterTime = sensedTimesSortedByActualTime[medianIndex];
