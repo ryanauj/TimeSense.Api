@@ -70,9 +70,9 @@ namespace TimeSense.Api.Controllers
             return Ok(sensedTimesByTargetTime);
         }
 
-        // GET api/sensedTimes/target/{latestToTake}
-        [HttpGet("target/{latestToTake}")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTimeWithLatest(int? latestToTake)
+        // GET api/sensedTimes/target/latest/{latestToTake}
+        [HttpGet("target/latest/{latestToTake}")]
+        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTimeWithLatest(int latestToTake)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -81,6 +81,36 @@ namespace TimeSense.Api.Controllers
             }
             
             var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId, latestToTake);
+
+            return Ok(sensedTimesByTargetTime);
+        }
+
+        // GET api/sensedTimes/target/{targetTime}
+        [HttpGet("target/{targetTime}")]
+        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesForTargetTime(decimal targetTime)
+        {
+            var userId = HttpContext.GetUserId(_logger);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, null);
+
+            return Ok(sensedTimesByTargetTime);
+        }
+
+        // GET api/sensedTimes/target/{targetTime}/latest/{latestToTake}
+        [HttpGet("target/{targetTime}/latest/{latestToTake}")]
+        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesForTargetTimeWithLatest(decimal targetTime, int latestToTake)
+        {
+            var userId = HttpContext.GetUserId(_logger);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequestErrorResponse("No user id passed in.");
+            }
+            
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, latestToTake);
 
             return Ok(sensedTimesByTargetTime);
         }

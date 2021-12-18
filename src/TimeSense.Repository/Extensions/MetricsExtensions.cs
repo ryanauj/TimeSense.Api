@@ -46,6 +46,9 @@ namespace TimeSense.Repository.Extensions
 
             var fasterTime = sensedTimesSortedByActualTime[medianIndex];
             var slowerTime = sensedTimesSortedByActualTime[medianIndex + 1];
+            
+            Console.WriteLine("fasterTime: {0}", fasterTime.ActualTime);
+            Console.WriteLine("slowerTime: {0}", slowerTime.ActualTime);
 
             return (fasterTime.ActualTime + slowerTime.ActualTime) / 2;
         }

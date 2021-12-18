@@ -61,13 +61,13 @@ namespace TimeSense.Repository
             return sensedTimesByTargetTime;
         }
 
-        public IEnumerable<SensedTime> GetLatestSensedTimesForTargetTime(string userId, decimal targetTime, int numToRetrieve)
+        public IEnumerable<SensedTime> GetLatestSensedTimesForTargetTime(string userId, decimal targetTime, int? numToRetrieve)
         {
             var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId && st.TargetTime == targetTime);
 
             var validSensedTimes = allSensedTimesFluent.ToEnumerable();
 
-            return validSensedTimes.Take(numToRetrieve);
+            return numToRetrieve == null ? validSensedTimes : validSensedTimes.Take(numToRetrieve.Value);
         }
     }
 }
