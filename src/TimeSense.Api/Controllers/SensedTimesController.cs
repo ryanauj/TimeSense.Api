@@ -15,12 +15,17 @@ namespace TimeSense.Api.Controllers
     [Route("api/[controller]")]
     public class SensedTimesController : ControllerBase
     {
-        private readonly SensedTimesRepository _repository;
+        private readonly SensedTimesRepository _sensedTimes;
+        private readonly MetricsRepository _metrics;
         private readonly ILogger<SensedTimesController> _logger;
 
-        public SensedTimesController(SensedTimesRepository repository, ILogger<SensedTimesController> logger)
+        public SensedTimesController(
+            SensedTimesRepository sensedTimesRepository,
+            MetricsRepository metricsRepository,
+            ILogger<SensedTimesController> logger)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _sensedTimes = sensedTimesRepository ?? throw new ArgumentNullException(nameof(sensedTimesRepository));
+            _metrics = metricsRepository ?? throw new ArgumentNullException(nameof(metricsRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -37,7 +42,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimes = await _repository.List(userId);
+            var sensedTimes = await _sensedTimes.List(userId);
 
             return Ok(sensedTimes);
         }
@@ -52,7 +57,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimes = _repository.GetLatestSensedTimes(userId, latestToTake);
+            var sensedTimes = _sensedTimes.GetLatestSensedTimes(userId, latestToTake);
 
             return Ok(sensedTimes);
         }
@@ -67,7 +72,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId);
+            var sensedTimesByTargetTime = _sensedTimes.GetLatestSensedTimesByTargetTime(userId);
             var sensedTimesAndMetricsByTargetTime = sensedTimesByTargetTime
                 .Select(kvp =>
                 {
@@ -94,7 +99,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId);
+            var sensedTimesByTargetTime = _sensedTimes.GetLatestSensedTimesByTargetTime(userId);
             var sensedTimesAndMetricsByTargetTime = sensedTimesByTargetTime
                 .Select(kvp =>
                 {
@@ -121,7 +126,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime).ToList();
+            var sensedTimesByTargetTime = _sensedTimes.GetLatestSensedTimesForTargetTime(userId, targetTime).ToList();
             var sensedTimesAndMetricsForTargetTime = new SensedTimesAndMetrics
             {
                 Metrics = sensedTimesByTargetTime.CalculateMetricsForTargetTime(),
@@ -141,7 +146,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, latestToTake).ToList();
+            var sensedTimesByTargetTime = _sensedTimes.GetLatestSensedTimesForTargetTime(userId, targetTime, latestToTake).ToList();
             var sensedTimesAndMetricsForTargetTime = new SensedTimesAndMetrics
             {
                 Metrics = sensedTimesByTargetTime.CalculateMetricsForTargetTime(),
@@ -161,7 +166,7 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTime = await _repository.Get(userId, id);
+            var sensedTime = await _sensedTimes.Get(userId, id);
             
             return Ok(sensedTime);
         }
@@ -176,28 +181,10 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTime = await _repository.Create(userId, sensedTimeInput);
-            
+            var sensedTime = await _sensedTimes.Create(userId, sensedTimeInput);
+            await _metrics.Update(userId, sensedTime.TargetTime);
+
             return Ok(sensedTime);
-        }
-
-        // PUT api/sensedTimes
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Put(
-            string id,
-            [FromBody] SensedTimeInput sensedTimeInput
-        )
-        {
-            var userId = HttpContext.GetUserId(_logger);
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequestErrorResponse("No user id passed in.");
-            }
-            
-            await _repository.Update(userId, id, sensedTimeInput);
-            // TODO: Update metrics on update
-
-            return Ok();
         }
 
         // DELETE api/sensedTimes/{id}
@@ -210,8 +197,10 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            await _repository.Delete(userId, id);
-            // TODO: Update metrics on remove
+            var sensedTime = await _sensedTimes.Get(userId, id);
+            
+            await _sensedTimes.Delete(userId, id);
+            await _metrics.Update(userId, sensedTime.TargetTime);
 
             return Ok();
         }

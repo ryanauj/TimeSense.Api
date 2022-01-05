@@ -11,6 +11,15 @@ namespace TimeSense.Repository.Extensions
             this IMongoCollection<SensedTime> sensedTimesCollection
         )
         {
+            // var allSensedTimes = sensedTimesCollection.Find(s => true);
+            // var sensedTimes = allSensedTimes.ToEnumerable();
+            // var users = new HashSet<string>();
+            // foreach (var sensedTime in sensedTimes)
+            // {
+            //     users.Add(sensedTime.UserId);
+            // }
+            //
+            // return users;
             var distinctTargetTimesForUserCursor = await sensedTimesCollection.DistinctAsync(
                 st => st.UserId, st => true);
             return distinctTargetTimesForUserCursor.ToEnumerable();

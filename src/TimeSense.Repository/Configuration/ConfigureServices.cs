@@ -19,19 +19,23 @@ namespace TimeSense.Repository.Configuration
                 var config = sp.GetRequiredService<ISensedTimesConfiguration>();
                 return new MongoClient(config.ConnectionString);
             });
-            services.AddSingleton<IMongoCollection<SensedTime>>(sp =>
+            services.AddSingleton<IMongoDatabase>(sp =>
             {
                 var config = sp.GetRequiredService<ISensedTimesConfiguration>();
                 var client = sp.GetRequiredService<IMongoClient>();
-                var database = client.GetDatabase(config.DatabaseName);
+                return client.GetDatabase(config.DatabaseName);
+            });
+            services.AddSingleton<IMongoCollection<SensedTime>>(sp =>
+            {
+                var config = sp.GetRequiredService<ISensedTimesConfiguration>();
+                var database = sp.GetRequiredService<IMongoDatabase>();
                 
                 return database.GetCollection<SensedTime>(config.CollectionName);
             });
             services.AddSingleton<IMongoCollection<MetricEntity>>(sp =>
             {
                 var config = sp.GetRequiredService<ISensedTimesConfiguration>();
-                var client = sp.GetRequiredService<IMongoClient>();
-                var database = client.GetDatabase(config.DatabaseName);
+                var database = sp.GetRequiredService<IMongoDatabase>();
                 
                 return database.GetCollection<MetricEntity>(config.MetricsCollectionName);
             });

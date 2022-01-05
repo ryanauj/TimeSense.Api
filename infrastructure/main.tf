@@ -29,6 +29,7 @@ module "lambda_api" {
   variables = {
     ASPNETCORE_ENVIRONMENT = var.environment
     SensedTimesConfiguration__ConnectionString = var.time_sense_connection_string
+    SensedTimesConfiguration__MetricsCollectionName = "Metrics"
     SensedTimesConfiguration__CollectionName = "SensedTimes"
     SensedTimesConfiguration__DatabaseName = "TimeSense"
   }
