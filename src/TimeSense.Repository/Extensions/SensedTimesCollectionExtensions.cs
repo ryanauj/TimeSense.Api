@@ -7,6 +7,15 @@ namespace TimeSense.Repository.Extensions
 {
     public static class SensedTimesCollectionExtensions
     {
+        public static async Task<IEnumerable<string>> GetDistinctUserIds(
+            this IMongoCollection<SensedTime> sensedTimesCollection
+        )
+        {
+            var distinctTargetTimesForUserCursor = await sensedTimesCollection.DistinctAsync(
+                st => st.UserId, st => true);
+            return distinctTargetTimesForUserCursor.ToEnumerable();
+        }
+        
         public static async Task<IEnumerable<decimal>> GetUserDistinctTargetTimes(
             this IMongoCollection<SensedTime> sensedTimesCollection, 
             string userId

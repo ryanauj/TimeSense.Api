@@ -14,16 +14,15 @@ namespace TimeSense.Repository.Extensions
 
             foreach (var (key, value) in sensedTimesByTargetTimes)
             {
-                metrics[key] = value.CalculateMetric();
+                metrics[key] = value.CalculateMetricsForTargetTime();
             }
 
             return metrics;
         }
         
-        private static Metric CalculateMetric(this IReadOnlyList<SensedTime> sensedTimes, int mostRecentToTake = 5)
+        public static Metric CalculateMetricsForTargetTime(this IEnumerable<SensedTime> sensedTimesByTargetTime)
         {
-            var sensedTimesSortedByActualTime = sensedTimes.OrderBy(st => st.ActualTime).ToList();
-            var sensedTimesSortedByDate = sensedTimes.OrderByDescending(st => st.CreatedAt);
+            var sensedTimesSortedByActualTime = sensedTimesByTargetTime.OrderBy(st => st.ActualTime).ToList();
 
             return new Metric
             {
@@ -32,8 +31,7 @@ namespace TimeSense.Repository.Extensions
                 TargetTime = sensedTimesSortedByActualTime.First().TargetTime,
                 Min = sensedTimesSortedByActualTime.First().ActualTime,
                 Max = sensedTimesSortedByActualTime.Last().ActualTime,
-                Total = sensedTimesSortedByActualTime.Count,
-                MostRecent = sensedTimesSortedByDate.Take(mostRecentToTake)
+                Total = sensedTimesSortedByActualTime.Count
             };
         }
 

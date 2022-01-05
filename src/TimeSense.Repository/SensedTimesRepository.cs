@@ -39,7 +39,7 @@ namespace TimeSense.Repository
             return validSensedTimes.Take(numToRetrieve);
         }
 
-        public IDictionary<decimal, IList<SensedTime>> GetLatestSensedTimesByTargetTime(string userId, int? numToRetrieve=null)
+        public IDictionary<decimal, IList<SensedTime>> GetLatestSensedTimesByTargetTime(string userId)
         {
             var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId);
 
@@ -52,7 +52,7 @@ namespace TimeSense.Repository
                 {
                     sensedTimesByTargetTime[sensedTime.TargetTime] = new List<SensedTime> { sensedTime };
                 }
-                else if (numToRetrieve == null || sensedTimesByTargetTime[sensedTime.TargetTime].Count < numToRetrieve)
+                else
                 {
                     sensedTimesByTargetTime[sensedTime.TargetTime].Add(sensedTime);
                 }
@@ -61,7 +61,7 @@ namespace TimeSense.Repository
             return sensedTimesByTargetTime;
         }
 
-        public IEnumerable<SensedTime> GetLatestSensedTimesForTargetTime(string userId, decimal targetTime, int? numToRetrieve)
+        public IEnumerable<SensedTime> GetLatestSensedTimesForTargetTime(string userId, decimal targetTime, int? numToRetrieve = null)
         {
             var allSensedTimesFluent = EntityCollection.Find(st => st.UserId == userId && st.TargetTime == targetTime);
 

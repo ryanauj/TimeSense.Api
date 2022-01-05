@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TimeSense.Api.Models;
 using TimeSense.Models;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TimeSense.Api.Extensions;
 using TimeSense.Repository;
+using TimeSense.Repository.Extensions;
 
 namespace TimeSense.Api.Controllers
 {
@@ -57,7 +59,7 @@ namespace TimeSense.Api.Controllers
 
         // GET api/sensedTimes/target
         [HttpGet("target")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTime()
+        public ActionResult<IDictionary<decimal, SensedTimesAndMetrics>> GetSensedTimesByTargetTime()
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -66,13 +68,25 @@ namespace TimeSense.Api.Controllers
             }
             
             var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId);
+            var sensedTimesAndMetricsByTargetTime = sensedTimesByTargetTime
+                .Select(kvp =>
+                {
+                    var (targetTime, sensedTimes) = kvp;
+                    var sensedTimesAndMetrics = new SensedTimesAndMetrics
+                    {
+                        Metrics = sensedTimes.CalculateMetricsForTargetTime(),
+                        SensedTimes = sensedTimes
+                    };
+                    return new KeyValuePair<decimal, SensedTimesAndMetrics>(targetTime, sensedTimesAndMetrics);
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            return Ok(sensedTimesByTargetTime);
+            return Ok(sensedTimesAndMetricsByTargetTime);
         }
 
         // GET api/sensedTimes/target/latest/{latestToTake}
         [HttpGet("target/latest/{latestToTake}")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesByTargetTimeWithLatest(int latestToTake)
+        public ActionResult<IDictionary<decimal, SensedTimesAndMetrics>> GetSensedTimesByTargetTimeWithLatest(int latestToTake)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -80,14 +94,26 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId, latestToTake);
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesByTargetTime(userId);
+            var sensedTimesAndMetricsByTargetTime = sensedTimesByTargetTime
+                .Select(kvp =>
+                {
+                    var (targetTime, sensedTimes) = kvp;
+                    var sensedTimesAndMetrics = new SensedTimesAndMetrics
+                    {
+                        Metrics = sensedTimes.CalculateMetricsForTargetTime(),
+                        SensedTimes = sensedTimes.Take(latestToTake)
+                    };
+                    return new KeyValuePair<decimal, SensedTimesAndMetrics>(targetTime, sensedTimesAndMetrics);
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-            return Ok(sensedTimesByTargetTime);
+            return Ok(sensedTimesAndMetricsByTargetTime);
         }
 
         // GET api/sensedTimes/target/{targetTime}
         [HttpGet("target/{targetTime}")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesForTargetTime(decimal targetTime)
+        public ActionResult<SensedTimesAndMetrics> GetSensedTimesForTargetTime(decimal targetTime)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -95,14 +121,19 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, null);
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime).ToList();
+            var sensedTimesAndMetricsForTargetTime = new SensedTimesAndMetrics
+            {
+                Metrics = sensedTimesByTargetTime.CalculateMetricsForTargetTime(),
+                SensedTimes = sensedTimesByTargetTime
+            };
 
-            return Ok(sensedTimesByTargetTime);
+            return Ok(sensedTimesAndMetricsForTargetTime);
         }
 
         // GET api/sensedTimes/target/{targetTime}/latest/{latestToTake}
         [HttpGet("target/{targetTime}/latest/{latestToTake}")]
-        public ActionResult<IDictionary<decimal, SensedTime>> GetSensedTimesForTargetTimeWithLatest(decimal targetTime, int latestToTake)
+        public ActionResult<SensedTimesAndMetrics> GetSensedTimesForTargetTimeWithLatest(decimal targetTime, int latestToTake)
         {
             var userId = HttpContext.GetUserId(_logger);
             if (string.IsNullOrWhiteSpace(userId))
@@ -110,9 +141,14 @@ namespace TimeSense.Api.Controllers
                 return BadRequestErrorResponse("No user id passed in.");
             }
             
-            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, latestToTake);
+            var sensedTimesByTargetTime = _repository.GetLatestSensedTimesForTargetTime(userId, targetTime, latestToTake).ToList();
+            var sensedTimesAndMetricsForTargetTime = new SensedTimesAndMetrics
+            {
+                Metrics = sensedTimesByTargetTime.CalculateMetricsForTargetTime(),
+                SensedTimes = sensedTimesByTargetTime.Take(latestToTake)
+            };
 
-            return Ok(sensedTimesByTargetTime);
+            return Ok(sensedTimesAndMetricsForTargetTime);
         }
         
         // GET api/sensedTimes/{id}

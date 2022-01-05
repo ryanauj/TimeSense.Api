@@ -38,5 +38,14 @@ namespace TimeSense.Api.Controllers
             
             return Ok(metrics);
         }
+        
+        // PUT api/metrics/refresh
+        [HttpPost("refresh")]
+        public async Task<ActionResult<MetricsEntity>> Refresh()
+        {
+            await _metricsRepository.RefreshAll();
+            
+            return Ok();
+        }
     }
 }

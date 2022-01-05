@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -27,6 +26,14 @@ namespace TimeSense.Repository.Configuration
                 var database = client.GetDatabase(config.DatabaseName);
                 
                 return database.GetCollection<SensedTime>(config.CollectionName);
+            });
+            services.AddSingleton<IMongoCollection<MetricEntity>>(sp =>
+            {
+                var config = sp.GetRequiredService<ISensedTimesConfiguration>();
+                var client = sp.GetRequiredService<IMongoClient>();
+                var database = client.GetDatabase(config.DatabaseName);
+                
+                return database.GetCollection<MetricEntity>(config.MetricsCollectionName);
             });
             services.AddSingleton<SensedTimesRepository, SensedTimesRepository>();
             services.AddSingleton<MetricsRepository, MetricsRepository>();
